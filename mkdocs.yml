@@ -1,0 +1,19 @@
+site_name: breste/firebase-jwt
+theme: readthedocs
+
+nav:
+  - Intro:
+      - 'index.md'
+      - 'installation.md'
+      - 'quick-start.md'
+  - Usage:
+      - 'issuing-custom-tokens.md'
+      - 'parsing-tokens.md'
+      - 'verifying-id-tokens.md'
+      - 'managing-session-cookies.md'
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - toc:
+      permalink: true

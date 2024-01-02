@@ -14,6 +14,7 @@ use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\Builder as LcobucciBuilder;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Psl\Env;
 
 abstract class TestCase extends PHPUnitTestCase
 {
@@ -34,7 +35,7 @@ abstract class TestCase extends PHPUnitTestCase
      */
     protected static function tenantId(): string
     {
-        $tenantId = $_ENV['FIREBASE_TENANT_ID'];
+        $tenantId = Env\get_var('FIREBASE_TENANT_ID');
         assert(is_string($tenantId) && $tenantId !== '');
 
         return $tenantId;

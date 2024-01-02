@@ -11,7 +11,7 @@ composer require beste/firebase-jwt
 ## Autoloading
 
 !!! Note
-We'll be omitting the autoloader from the code samples to simplify the documentation.
+    We'll be omitting the autoloader from the code samples to simplify the documentation.
 
 In order to be able to use the classes provided by this library you're also required to include [Composer]'s autoloader in your application:
 
@@ -20,7 +20,7 @@ require 'vendor/autoload.php';
 ```
 
 !!! Tip
-If you're not familiar with how [composer] works, we highly recommend you to take some time to read it's documentation - especially the [autoloading section].
+    If you're not familiar with how [composer] works, we highly recommend you to take some time to read it's documentation - especially the [autoloading section].
 
 [Packagist]: https://packagist.org/packages/beste/firebase-jwt
 [Composer]: https://getcomposer.org

@@ -32,7 +32,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
 
     public function testItIssuesACustomToken(): void
     {
-        $token = $this->facade->issue('uid', ['custom' => 'claim']);
+        $token = $this->facade->issueCustomToken('uid', ['custom' => 'claim']);
 
         $parsed = (new Parser(new JoseEncoder()))->parse($token->toString());
 
@@ -52,10 +52,10 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     #[DoesNotPerformAssertions]
     public function testItVerifiesAnIdToken(): void
     {
-        $customToken = $this->facade->issue('uid');
+        $customToken = $this->facade->issueCustomToken('uid');
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
-        $this->facade->verify($idToken);
+        $this->facade->verifyIdToken($idToken);
     }
 
     #[DoesNotPerformAssertions]
@@ -63,10 +63,10 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     {
         $tenantId = self::tenantId();
 
-        $customToken = $this->facade->builder('uid')->relatedToTenant($tenantId)->getToken();
+        $customToken = $this->facade->customTokenBuilder('uid')->relatedToTenant($tenantId)->getToken();
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
-        $this->facade->verify($idToken, $tenantId);
+        $this->facade->verifyIdToken($idToken, $tenantId);
     }
 
     #[DoesNotPerformAssertions]
@@ -85,12 +85,12 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
             clock: $futureClock
         );
 
-        $customToken = $correctFacade->builder('uid')
+        $customToken = $correctFacade->customTokenBuilder('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
             ->getToken();
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
-        $futureFacade->verify(jwt: $idToken, leeway: new \DateInterval('PT51M'));
+        $futureFacade->verifyIdToken(jwt: $idToken, leeway: new \DateInterval('PT51M'));
     }
 }

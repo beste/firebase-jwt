@@ -12,11 +12,6 @@ use DateInterval;
 use DateTimeImmutable;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
-use Lcobucci\JWT\Encoding\CannotDecodeContent;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\InvalidTokenStructure;
-use Lcobucci\JWT\Token\Parser;
-use Lcobucci\JWT\Token\UnsupportedHeaderFound;
 use Lcobucci\JWT\UnencryptedToken;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Clock\ClockInterface;
@@ -58,7 +53,7 @@ final class FirebaseJwtFacade
     /**
      * @param non-empty-string $uid
      */
-    public function builder(string $uid): Builder
+    public function customTokenBuilder(string $uid): Builder
     {
         $builder = new Token\Builder(
             clientEmail: $this->variables->clientEmail(),
@@ -73,9 +68,9 @@ final class FirebaseJwtFacade
      * @param non-empty-string $uid
      * @param array<non-empty-string, mixed> $customClaims
      */
-    public function issue(string $uid, array $customClaims = []): UnencryptedToken
+    public function issueCustomToken(string $uid, array $customClaims = []): UnencryptedToken
     {
-        $builder = $this->builder($uid);
+        $builder = $this->customTokenBuilder($uid);
 
         foreach ($customClaims as $name => $value) {
             $builder = $builder->withCustomClaim($name, $value);
@@ -84,22 +79,7 @@ final class FirebaseJwtFacade
         return $builder->getToken();
     }
 
-    /**
-     * @param non-empty-string $jwt
-     *
-     * @throws CannotDecodeContent When something goes wrong while decoding.
-     * @throws InvalidTokenStructure When token string structure is invalid.
-     * @throws UnsupportedHeaderFound When parsed token has an unsupported header.
-     */
-    public function parse(string $jwt): UnencryptedToken
-    {
-        $token = (new Parser(new JoseEncoder()))->parse($jwt);
-        assert($token instanceof UnencryptedToken);
-
-        return $token;
-    }
-
-    public function verifier(): IdTokenVerifier
+    public function idTokenVerifier(): IdTokenVerifier
     {
         return new SecureIdTokenVerifier($this->variables->projectId(), $this->clock, $this->keySet);
     }
@@ -108,9 +88,9 @@ final class FirebaseJwtFacade
      * @param non-empty-string $jwt
      * @param non-empty-string|null $expectedTenantId
      */
-    public function verify(string $jwt, ?string $expectedTenantId = null, ?DateInterval $leeway = null): UnencryptedToken
+    public function verifyIdToken(string $jwt, ?string $expectedTenantId = null, ?DateInterval $leeway = null): UnencryptedToken
     {
-        $verifier = $this->verifier();
+        $verifier = $this->idTokenVerifier();
 
         if ($expectedTenantId !== null) {
             $verifier = $verifier->withExpectedTenantId($expectedTenantId);

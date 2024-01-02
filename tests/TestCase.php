@@ -2,10 +2,14 @@
 
 namespace Beste\Firebase\JWT\Tests;
 
+use Beste\Cache\InMemoryCache;
+use Beste\Clock\SystemClock;
 use Beste\Firebase\JWT\Environment\EnvironmentVariables;
 use Beste\Firebase\JWT\Environment\Variables;
 use Beste\Firebase\JWT\Tests\Support\CustomTokenExchanger;
-use Google\Auth\ApplicationDefaultCredentials;
+use Google\Auth\Credentials\ServiceAccountCredentials;
+use Google\Auth\FetchAuthTokenCache;
+use Google\Auth\Middleware\AuthTokenMiddleware;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -47,7 +51,12 @@ abstract class TestCase extends PHPUnitTestCase
             return self::$customTokenExchanger;
         }
 
-        $middleware = ApplicationDefaultCredentials::getMiddleware(['https://www.googleapis.com/auth/cloud-platform']);
+        $credentials = new ServiceAccountCredentials(['https://www.googleapis.com/auth/cloud-platform'], [
+            'client_email' => self::variables()->clientEmail(),
+            'private_key' => self::variables()->privateKey(),
+        ]);
+        $credentials = new FetchAuthTokenCache(fetcher: $credentials, cacheConfig: [], cache: new InMemoryCache(SystemClock::create()));
+        $middleware = new AuthTokenMiddleware($credentials);
 
         $stack = HandlerStack::create();
         $stack->push($middleware);

@@ -17,7 +17,7 @@ use SensitiveParameter;
 final class Builder implements BuilderInterface
 {
     private const AUDIENCE = 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit';
-    private const DEFAULT_TTL = 'PT1M';
+    private const DEFAULT_TTL = 'PT5M';
 
     private InMemory $privateKey;
     private Signer $signer;

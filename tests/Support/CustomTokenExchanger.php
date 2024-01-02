@@ -10,16 +10,16 @@ use Psr\Http\Message\StreamFactoryInterface;
 /**
  * @internal
  */
-final readonly class CustomTokenExchanger
+final class CustomTokenExchanger
 {
     /**
      * @param non-empty-string $projectId
      */
     public function __construct(
-        private string $projectId,
-        private ClientInterface $client,
-        private RequestFactoryInterface $requestFactory,
-        private StreamFactoryInterface $streamFactory,
+        private readonly string $projectId,
+        private readonly ClientInterface $client,
+        private readonly RequestFactoryInterface $requestFactory,
+        private readonly StreamFactoryInterface $streamFactory,
     ) {}
 
     /**

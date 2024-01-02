@@ -3,7 +3,6 @@
 namespace Beste\Firebase\JWT\Tests\Environment;
 
 use Beste\Firebase\JWT\Environment\EnvironmentVariables;
-use Beste\Firebase\JWT\Environment\Variables;
 use Beste\Firebase\JWT\Tests\TestCase;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use Psl\Env;

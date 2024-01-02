@@ -32,7 +32,7 @@ final class GooglePublicKeys implements KeySet
 
     public function findKeyById(string $id): Key
     {
-        $cacheItem = $this->cache->getItem($this->cacheKeyPrefix.$id);
+        $cacheItem = $this->cache->getItem($this->cacheKeyPrefix . $id);
         $value = $cacheItem->get();
 
         if ($cacheItem->isHit()) {

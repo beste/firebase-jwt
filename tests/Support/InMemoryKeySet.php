@@ -18,19 +18,6 @@ final class InMemoryKeySet implements KeySet
      */
     public function __construct(private array $keys = []) {}
 
-    /**
-     * @param non-empty-string $id
-     */
-    public function addKey(string $id, Key $key): void
-    {
-        $this->keys[$id] = $key;
-    }
-
-    public function callsToFindByKeyId(): int
-    {
-        return $this->invocations;
-    }
-
     public function findKeyById(string $id): Key
     {
         ++$this->invocations;

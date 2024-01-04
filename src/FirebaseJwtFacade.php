@@ -24,7 +24,7 @@ final class FirebaseJwtFacade
     private ClientInterface $client;
     private RequestFactoryInterface $requestFactory;
     private KeySet $keySet;
-    private CacheItemPoolInterface|InMemoryCache $cache;
+    private CacheItemPoolInterface $cache;
 
     public function __construct(
         private readonly Variables $variables,

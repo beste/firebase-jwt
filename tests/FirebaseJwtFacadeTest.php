@@ -37,13 +37,38 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         self::assertSame($token->toString(), $parsed->toString());
     }
 
-    #[DoesNotPerformAssertions]
     public function testItVerifiesAnIdToken(): void
     {
-        $customToken = $this->facade->issueCustomToken('uid');
+        $customToken = $this->facade
+            ->issueCustomToken(
+                uid: 'github-supporter',
+                customClaims: [
+                    'is_awesome' => true,
+                    'perks' => $perks = [
+                        'badges' => ['premium_user', 'github_supporter'],
+                        'support_tier' => 'individual_support',
+                    ],
+                    'level' => 1,
+                ],
+                tenantId: self::tenantId(),
+            );
+
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
-        $this->facade->verifyIdToken($idToken);
+        $idToken = $this->facade->verifyIdToken($idToken);
+
+        self::assertSame('github-supporter', $idToken->claims()->get('user_id'));
+        self::assertSame('github-supporter', $idToken->claims()->get('sub'));
+        self::assertTrue($idToken->claims()->get('is_awesome'));
+        self::assertEqualsCanonicalizing($perks, $idToken->claims()->get('perks'));
+        self::assertSame(1, $idToken->claims()->get('level'));
+        self::assertTrue($idToken->claims()->has('firebase'));
+
+        $firebaseClaims = $idToken->claims()->get('firebase');
+        self::assertIsArray($firebaseClaims);
+
+        self::assertSame(self::tenantId(), $firebaseClaims['tenant']);
+        self::assertSame('custom', $firebaseClaims['sign_in_provider']);
     }
 
     #[DoesNotPerformAssertions]

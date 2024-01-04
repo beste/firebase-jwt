@@ -45,9 +45,12 @@ final class FirebaseJwtFacade
         $this->keySet = new GooglePublicKeys($this->client, $this->requestFactory, $this->cache);
     }
 
-    public static function createFromEnvironment(): self
+    /**
+     * @param non-empty-string|null $name
+     */
+    public static function createFromEnvironment(?string $name = null): self
     {
-        return new self(EnvironmentVariables::fromEnvironment());
+        return new self(EnvironmentVariables::fromEnvironment($name));
     }
 
     /**

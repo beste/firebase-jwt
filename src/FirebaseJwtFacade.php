@@ -67,13 +67,20 @@ final class FirebaseJwtFacade
     /**
      * @param non-empty-string $uid
      * @param array<non-empty-string, mixed> $customClaims
+     * @param non-empty-string|null $tenantId
      */
-    public function issueCustomToken(string $uid, array $customClaims = []): UnencryptedToken
+    public function issueCustomToken(string $uid, ?array $customClaims = null, ?string $tenantId = null): UnencryptedToken
     {
+        $customClaims ??= [];
+
         $builder = $this->customTokenBuilder($uid);
 
         foreach ($customClaims as $name => $value) {
             $builder = $builder->withCustomClaim($name, $value);
+        }
+
+        if ($tenantId !== null) {
+            $builder = $builder->forTenant($tenantId);
         }
 
         return $builder->getToken();

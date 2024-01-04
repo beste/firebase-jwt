@@ -63,7 +63,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     {
         $tenantId = self::tenantId();
 
-        $customToken = $this->facade->customTokenBuilder('uid')->relatedToTenant($tenantId)->getToken();
+        $customToken = $this->facade->issueCustomToken(uid: 'uid', tenantId: $tenantId);
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
         $this->facade->verifyIdToken($idToken, $tenantId);

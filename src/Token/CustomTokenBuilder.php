@@ -2,7 +2,7 @@
 
 namespace Beste\Firebase\JWT\Token;
 
-use Beste\Firebase\JWT\Builder as BuilderInterface;
+use Beste\Firebase\JWT\CustomTokenBuilder as CustomTokenBuilderInterface;
 use DateInterval;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
 use Lcobucci\JWT\Encoding\JoseEncoder;
@@ -14,7 +14,7 @@ use Lcobucci\JWT\UnencryptedToken;
 use Psr\Clock\ClockInterface;
 use SensitiveParameter;
 
-final class Builder implements BuilderInterface
+final class CustomTokenBuilder implements CustomTokenBuilderInterface
 {
     private const AUDIENCE = 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit';
     private const DEFAULT_TTL = 'PT5M';
@@ -49,17 +49,17 @@ final class Builder implements BuilderInterface
         $this->expiresAfter = new DateInterval(self::DEFAULT_TTL);
     }
 
-    public function forUser(string $uid): BuilderInterface
+    public function forUser(string $uid): CustomTokenBuilderInterface
     {
         return $this->withClaim('uid', $uid);
     }
 
-    public function forTenant(string $tenantId): BuilderInterface
+    public function forTenant(string $tenantId): CustomTokenBuilderInterface
     {
         return $this->withClaim('tenant_id', $tenantId);
     }
 
-    public function withClaim(string $name, mixed $value): BuilderInterface
+    public function withClaim(string $name, mixed $value): CustomTokenBuilderInterface
     {
         $new = clone $this;
         $new->claims[$name] = $value;
@@ -67,7 +67,7 @@ final class Builder implements BuilderInterface
         return $new;
     }
 
-    public function withCustomClaim(string $name, mixed $value): BuilderInterface
+    public function withCustomClaim(string $name, mixed $value): CustomTokenBuilderInterface
     {
         $new = clone $this;
         $new->customClaims[$name] = $value;
@@ -75,7 +75,7 @@ final class Builder implements BuilderInterface
         return $new;
     }
 
-    public function expiresAfter(DateInterval $duration): BuilderInterface
+    public function expiresAfter(DateInterval $duration): CustomTokenBuilderInterface
     {
         $new = clone $this;
         $new->expiresAfter = $duration;

@@ -54,9 +54,9 @@ final class FirebaseJwtFacade
     /**
      * @param non-empty-string $uid
      */
-    private function customTokenBuilder(string $uid): Builder
+    private function customTokenBuilder(string $uid): CustomTokenBuilder
     {
-        $builder = new Token\Builder(
+        $builder = new Token\CustomTokenBuilder(
             clientEmail: $this->variables->clientEmail(),
             privateKey: $this->variables->privateKey(),
             clock: $this->clock,
@@ -93,7 +93,10 @@ final class FirebaseJwtFacade
             projectId: $this->variables->projectId(),
             clock: $this->clock,
             keySet: new GooglePublicKeys(
-                CertUrl::forIdTokenVerification(), $this->client, $this->requestFactory, $this->cache
+                CertUrl::forIdTokenVerification(),
+                $this->client,
+                $this->requestFactory,
+                $this->cache,
             )
         );
     }

@@ -8,7 +8,7 @@ use Lcobucci\JWT\UnencryptedToken;
 /**
  * @see https://firebase.google.com/docs/auth/admin/create-custom-tokens#create_custom_tokens_using_a_third-party_jwt_library
  */
-interface Builder
+interface CustomTokenBuilder
 {
     /**
      * @param non-empty-string $uid

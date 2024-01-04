@@ -4,7 +4,7 @@ namespace Beste\Firebase\JWT\Tests\Token;
 
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\Tests\TestCase;
-use Beste\Firebase\JWT\Token\Builder;
+use Beste\Firebase\JWT\Token\CustomTokenBuilder;
 use Lcobucci\JWT\JwtFacade;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -18,10 +18,10 @@ use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
- * @covers \Beste\Firebase\JWT\Token\Builder
+ * @covers \Beste\Firebase\JWT\Token\CustomTokenBuilder
  * @internal
  */
-final class BuilderTest extends TestCase
+final class CustomTokenBuilderTest extends TestCase
 {
     private FrozenClock $clock;
     private InMemory $privateKey;
@@ -145,11 +145,11 @@ final class BuilderTest extends TestCase
     /**
      * @param non-empty-string|null $uid
      */
-    private function builder(?string $uid = null): \Beste\Firebase\JWT\Builder
+    private function builder(?string $uid = null): \Beste\Firebase\JWT\CustomTokenBuilder
     {
         $uid ??= 'uid';
 
-        return (new Builder(
+        return (new CustomTokenBuilder(
             clientEmail: $this->clientEmail,
             privateKey: $this->privateKey->contents(),
             clock: $this->clock,

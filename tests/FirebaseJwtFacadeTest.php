@@ -4,7 +4,7 @@ namespace Beste\Firebase\JWT\Tests;
 
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\FirebaseJwtFacade;
-use Beste\Firebase\JWT\Token\Builder;
+use Beste\Firebase\JWT\Token\CustomTokenBuilder;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -86,7 +86,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     {
         $clock = FrozenClock::fromUTC();
 
-        $builder = new Builder(
+        $builder = new CustomTokenBuilder(
             clientEmail: self::variables()->clientEmail(),
             privateKey: self::variables()->privateKey(),
             clock: $clock,
@@ -115,7 +115,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     {
         $clock = FrozenClock::fromUTC();
 
-        $builder = new Builder(
+        $builder = new CustomTokenBuilder(
             clientEmail: self::variables()->clientEmail(),
             privateKey: self::variables()->privateKey(),
             clock: $clock,

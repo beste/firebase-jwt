@@ -2,7 +2,7 @@
 
 namespace Beste\Firebase\JWT\Token;
 
-use Beste\Firebase\JWT\IdTokenVerifier as IdTokenVerifierInterface;
+use Beste\Firebase\JWT\IdTokenVerifier;
 use Beste\Firebase\JWT\Signer\KeySet;
 use Beste\Firebase\JWT\Validation\Constraint\HasTenant;
 use Beste\Firebase\JWT\Validation\Constraint\SignedWithOneInKeySet;
@@ -17,7 +17,7 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Validator;
 use Psr\Clock\ClockInterface;
 
-final class SecureIdTokenVerifier implements IdTokenVerifierInterface
+final class SecureIdTokenVerifier implements IdTokenVerifier
 {
     private DateInterval $leeway;
     private Parser $parser;
@@ -41,7 +41,7 @@ final class SecureIdTokenVerifier implements IdTokenVerifierInterface
         $this->validator = new Validator();
     }
 
-    public function withLeeway(DateInterval $leeway): IdTokenVerifierInterface
+    public function withLeeway(DateInterval $leeway): IdTokenVerifier
     {
         $new = clone $this;
         $new->leeway = $leeway;
@@ -49,7 +49,7 @@ final class SecureIdTokenVerifier implements IdTokenVerifierInterface
         return $new;
     }
 
-    public function withExpectedTenantId(string $tenantId): IdTokenVerifierInterface
+    public function withExpectedTenantId(string $tenantId): IdTokenVerifier
     {
         $new = clone $this;
         $new->tenantId = $tenantId;

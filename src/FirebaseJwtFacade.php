@@ -5,8 +5,8 @@ namespace Beste\Firebase\JWT;
 use Beste\Cache\InMemoryCache;
 use Beste\Firebase\JWT\Environment\EnvironmentVariables;
 use Beste\Firebase\JWT\Environment\Variables;
+use Beste\Firebase\JWT\Signer\CertUrl;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
-use Beste\Firebase\JWT\Signer\KeySet;
 use Beste\Firebase\JWT\Token\SecureIdTokenVerifier;
 use DateInterval;
 use DateTimeImmutable;
@@ -23,7 +23,6 @@ final class FirebaseJwtFacade
     private ClockInterface $clock;
     private ClientInterface $client;
     private RequestFactoryInterface $requestFactory;
-    private KeySet $keySet;
     private CacheItemPoolInterface $cache;
 
     public function __construct(
@@ -42,7 +41,6 @@ final class FirebaseJwtFacade
         $this->client = $client ?? Psr18ClientDiscovery::find();
         $this->requestFactory = $requestFactory ?? Psr17FactoryDiscovery::findRequestFactory();
         $this->cache = $cache ?? new InMemoryCache($this->clock);
-        $this->keySet = new GooglePublicKeys($this->client, $this->requestFactory, $this->cache);
     }
 
     /**
@@ -91,7 +89,13 @@ final class FirebaseJwtFacade
 
     private function idTokenVerifier(): IdTokenVerifier
     {
-        return new SecureIdTokenVerifier($this->variables->projectId(), $this->clock, $this->keySet);
+        return new SecureIdTokenVerifier(
+            projectId: $this->variables->projectId(),
+            clock: $this->clock,
+            keySet: new GooglePublicKeys(
+                CertUrl::forIdTokenVerification(), $this->client, $this->requestFactory, $this->cache
+            )
+        );
     }
 
     /**

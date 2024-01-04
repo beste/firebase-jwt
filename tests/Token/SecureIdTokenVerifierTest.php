@@ -7,6 +7,7 @@ use Beste\Clock\FrozenClock;
 use Beste\Clock\SystemClock;
 use Beste\Firebase\JWT\Builder as BuilderInterface;
 use Beste\Firebase\JWT\IdTokenVerifier;
+use Beste\Firebase\JWT\Signer\CertUrl;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
 use Beste\Firebase\JWT\Tests\TestCase;
 use Beste\Firebase\JWT\Token\Builder;
@@ -19,6 +20,8 @@ use Psr\Clock\ClockInterface;
 
 /**
  * @covers \Beste\Firebase\JWT\Token\SecureIdTokenVerifier
+ * @covers \Beste\Firebase\JWT\Signer\CertUrl
+ *
  * @internal
  */
 final class SecureIdTokenVerifierTest extends TestCase
@@ -110,6 +113,7 @@ final class SecureIdTokenVerifierTest extends TestCase
             projectId: self::variables()->projectId(),
             clock: $clock,
             keySet: new GooglePublicKeys(
+                CertUrl::forIdTokenVerification(),
                 Psr18ClientDiscovery::find(),
                 Psr17FactoryDiscovery::findRequestFactory(),
                 new InMemoryCache($clock),

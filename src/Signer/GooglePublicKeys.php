@@ -18,11 +18,10 @@ use Psr\Http\Message\ResponseInterface;
 final class GooglePublicKeys implements KeySet
 {
     /**
-     * URL containing the public keys for the Google certs (whose private keys are used to sign Firebase Auth ID tokens)
+     * @param non-empty-string $certUrl
      */
-    private const CLIENT_CERT_URL = 'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
-
     public function __construct(
+        private string $certUrl,
         private ClientInterface $client,
         private RequestFactoryInterface $requestFactory,
         private CacheItemPoolInterface $cache,
@@ -46,7 +45,7 @@ final class GooglePublicKeys implements KeySet
         try {
             $data = Json\typed((string) $response->getBody(), Type\non_empty_dict(Type\non_empty_string(), Type\non_empty_string()));
         } catch (Json\Exception\DecodeException $e) {
-            throw KeySetError::withReason(Str\format('The response from `%s` could not be parsed: %s', self::CLIENT_CERT_URL, $e->getMessage()));
+            throw KeySetError::withReason(Str\format('The response from `%s` could not be parsed: %s', $this->certUrl, $e->getMessage()));
         }
 
         $key = null;
@@ -81,16 +80,16 @@ final class GooglePublicKeys implements KeySet
 
     private function fetchKeys(): ResponseInterface
     {
-        $request = $this->requestFactory->createRequest('GET', self::CLIENT_CERT_URL);
+        $request = $this->requestFactory->createRequest('GET', $this->certUrl);
 
         try {
             $response = $this->client->sendRequest($request);
         } catch (ClientExceptionInterface $e) {
-            throw KeySetError::withReason('Network error while fetching Google Public Keys from ' . self::CLIENT_CERT_URL . ': ' . $e->getMessage());
+            throw KeySetError::withReason('Network error while fetching Google Public Keys from ' . $this->certUrl . ': ' . $e->getMessage());
         }
 
         if ($response->getStatusCode() !== 200) {
-            throw KeySetError::withReason(Str\format('The call to %s returned an unsuccessful response: (%d) %s', self::CLIENT_CERT_URL, $response->getStatusCode(), (string) $response->getBody()));
+            throw KeySetError::withReason(Str\format('The call to %s returned an unsuccessful response: (%d) %s', $this->certUrl, $response->getStatusCode(), (string) $response->getBody()));
         }
 
         return $response;

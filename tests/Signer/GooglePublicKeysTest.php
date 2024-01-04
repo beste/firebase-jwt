@@ -180,6 +180,7 @@ final class GooglePublicKeysTest extends TestCase
     private function keySetWithMockedClient(string $cacheKeyPrefix = 'test'): GooglePublicKeys
     {
         return new GooglePublicKeys(
+            certUrl: 'https://example.org',
             client: $this->mockedClient,
             requestFactory: $this->requestFactory,
             cache: $this->cache,

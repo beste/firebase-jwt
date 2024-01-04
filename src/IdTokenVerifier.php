@@ -9,6 +9,9 @@ use Lcobucci\JWT\Token\UnsupportedHeaderFound;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 
+/**
+ * @see https://firebase.google.com/docs/auth/admin/verify-id-tokens#verify_id_tokens_using_the_firebase_admin_sdk
+ */
 interface IdTokenVerifier
 {
     public function withLeeway(DateInterval $leeway): self;

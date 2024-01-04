@@ -49,12 +49,12 @@ final class Builder implements BuilderInterface
         $this->expiresAfter = new DateInterval(self::DEFAULT_TTL);
     }
 
-    public function relatedToUser(string $uid): BuilderInterface
+    public function forUser(string $uid): BuilderInterface
     {
         return $this->withClaim('uid', $uid);
     }
 
-    public function relatedToTenant(string $tenantId): BuilderInterface
+    public function forTenant(string $tenantId): BuilderInterface
     {
         return $this->withClaim('tenant_id', $tenantId);
     }

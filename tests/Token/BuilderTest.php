@@ -115,7 +115,7 @@ final class BuilderTest extends TestCase
     {
         $tenantId = self::tenantId();
 
-        $token = $this->builder()->relatedToTenant($tenantId)->getToken();
+        $token = $this->builder()->forTenant($tenantId)->getToken();
 
         $this->parse(
             $token,
@@ -153,6 +153,6 @@ final class BuilderTest extends TestCase
             clientEmail: $this->clientEmail,
             privateKey: $this->privateKey->contents(),
             clock: $this->clock,
-        ))->relatedToUser($uid);
+        ))->forUser($uid);
     }
 }

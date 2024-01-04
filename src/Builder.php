@@ -13,12 +13,12 @@ interface Builder
     /**
      * @param non-empty-string $uid
      */
-    public function relatedToUser(string $uid): self;
+    public function forUser(string $uid): self;
 
     /**
      * @param non-empty-string $tenantId
      */
-    public function relatedToTenant(string $tenantId): self;
+    public function forTenant(string $tenantId): self;
 
     /**
      * @param non-empty-string $name

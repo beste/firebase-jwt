@@ -26,7 +26,7 @@ final class SecureIdTokenVerifierTest extends TestCase
     public function testItVerifiesAValidIdToken(): void
     {
         $uid = 'uid';
-        $customToken = $this->builder()->relatedToUser($uid)->getToken();
+        $customToken = $this->builder()->forUser($uid)->getToken();
 
         $idToken = self::customTokenExchanger()
             ->exchangeCustomTokenForIdToken($customToken);
@@ -43,8 +43,8 @@ final class SecureIdTokenVerifierTest extends TestCase
         $tenantId = self::tenantId();
 
         $customToken = $this->builder()
-            ->relatedToUser('uid')
-            ->relatedToTenant($tenantId)
+            ->forUser('uid')
+            ->forTenant($tenantId)
             ->getToken();
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
@@ -57,7 +57,7 @@ final class SecureIdTokenVerifierTest extends TestCase
     public function testItRejectsAnExpiredIdToken(): void
     {
         $customToken = $this->builder()
-            ->relatedToUser('uid')
+            ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
             ->getToken();
 
@@ -79,7 +79,7 @@ final class SecureIdTokenVerifierTest extends TestCase
         $futureClock->setTo($futureClock->now()->modify('+1 hour'));
 
         $customToken = $this->builder($correctClock)
-            ->relatedToUser('uid')
+            ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
             ->getToken();
 

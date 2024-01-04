@@ -61,7 +61,7 @@ final class FirebaseJwtFacade
             clock: $this->clock,
         );
 
-        return $builder->relatedToUser($uid);
+        return $builder->forUser($uid);
     }
 
     /**

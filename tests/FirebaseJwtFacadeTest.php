@@ -3,15 +3,13 @@
 namespace Beste\Firebase\JWT\Tests;
 
 use Beste\Clock\FrozenClock;
-use Beste\Clock\SystemClock;
 use Beste\Firebase\JWT\FirebaseJwtFacade;
-use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Beste\Firebase\JWT\Token\Builder;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
-use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
-use Lcobucci\JWT\Token\Builder as LcobucciBuilder;
 use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
@@ -32,19 +30,9 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
 
     public function testItIssuesACustomToken(): void
     {
-        $token = $this->facade->issueCustomToken('uid', ['custom' => 'claim']);
+        $token = $this->facade->issueCustomToken(uid: 'uid', customClaims: ['custom' => 'claim']);
 
         $parsed = (new Parser(new JoseEncoder()))->parse($token->toString());
-
-        self::assertSame($token->toString(), $parsed->toString());
-    }
-
-    public function testItParsesAJwt(): void
-    {
-        $token = (new LcobucciBuilder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates()))
-            ->getToken($this->signer, InMemory::plainText(self::variables()->privateKey()));
-
-        $parsed = $this->facade->parse($token->toString());
 
         self::assertSame($token->toString(), $parsed->toString());
     }
@@ -69,28 +57,57 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $this->facade->verifyIdToken($idToken, $tenantId);
     }
 
-    #[DoesNotPerformAssertions]
-    public function testItVerifiesAnExpiredItTokenWithLeeway(): void
+    public function testItRejectsAnExpiredToken(): void
     {
-        $correctClock = SystemClock::create();
-        $futureClock = FrozenClock::fromUTC();
-        $futureClock->setTo($futureClock->now()->modify('+1 hour'));
+        $clock = FrozenClock::fromUTC();
 
-        $correctFacade = new FirebaseJwtFacade(
-            variables: self::variables(),
-            clock: $correctClock
-        );
-        $futureFacade = new FirebaseJwtFacade(
-            variables: self::variables(),
-            clock: $futureClock
+        $builder = new Builder(
+            clientEmail: self::variables()->clientEmail(),
+            privateKey: self::variables()->privateKey(),
+            clock: $clock,
         );
 
-        $customToken = $correctFacade->customTokenBuilder('uid')
+        $customToken = $builder
+            ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
             ->getToken();
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
-        $futureFacade->verifyIdToken(jwt: $idToken, leeway: new \DateInterval('PT51M'));
+        $facade = new FirebaseJwtFacade(
+            variables: self::variables(),
+            clock: FrozenClock::at($clock->now()->modify('-11 minutes')),
+        );
+
+        $this->expectException(RequiredConstraintsViolated::class);
+        $this->expectExceptionMessageMatches('/future/');
+
+        $facade->verifyIdToken(jwt: $idToken);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testItAcceptsAnExpiredItTokenWithLeeway(): void
+    {
+        $clock = FrozenClock::fromUTC();
+
+        $builder = new Builder(
+            clientEmail: self::variables()->clientEmail(),
+            privateKey: self::variables()->privateKey(),
+            clock: $clock,
+        );
+
+        $customToken = $builder
+            ->forUser('uid')
+            ->expiresAfter(new \DateInterval('PT10M'))
+            ->getToken();
+
+        $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
+
+        $facade = new FirebaseJwtFacade(
+            variables: self::variables(),
+            clock: FrozenClock::at($clock->now()->modify('-11 minutes')),
+        );
+
+        $facade->verifyIdToken(jwt: $idToken, leeway: new \DateInterval('PT11M'));
     }
 }

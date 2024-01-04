@@ -50,6 +50,7 @@ final class CustomTokenExchanger
             ->withHeader('Accept', 'application/json');
 
         $response = $this->client->sendRequest($request);
+        assert($response->getStatusCode() === 200);
 
         $result = json_decode((string) $response->getBody(), true);
         assert(is_array($result));

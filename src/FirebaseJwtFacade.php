@@ -53,7 +53,7 @@ final class FirebaseJwtFacade
     /**
      * @param non-empty-string $uid
      */
-    public function customTokenBuilder(string $uid): Builder
+    private function customTokenBuilder(string $uid): Builder
     {
         $builder = new Token\Builder(
             clientEmail: $this->variables->clientEmail(),
@@ -79,7 +79,7 @@ final class FirebaseJwtFacade
         return $builder->getToken();
     }
 
-    public function idTokenVerifier(): IdTokenVerifier
+    private function idTokenVerifier(): IdTokenVerifier
     {
         return new SecureIdTokenVerifier($this->variables->projectId(), $this->clock, $this->keySet);
     }

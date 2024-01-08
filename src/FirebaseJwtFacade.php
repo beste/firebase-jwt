@@ -8,7 +8,7 @@ use Beste\Firebase\JWT\Environment\Variables;
 use Beste\Firebase\JWT\Signer\CertUrl;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
 use Beste\Firebase\JWT\Token\SecureIdTokenVerifier;
-use Beste\Firebase\JWT\Token\SecureSessionTokenVerifier;
+use Beste\Firebase\JWT\Token\SecureSessionCookieVerifier;
 use DateInterval;
 use DateTimeImmutable;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -121,9 +121,9 @@ final class FirebaseJwtFacade
         return $verifier->verify($jwt);
     }
 
-    private function sessionCookieVerifier(): SessionTokenVerifier
+    private function sessionCookieVerifier(): SessionCookieVerifier
     {
-        return new SecureSessionTokenVerifier(
+        return new SecureSessionCookieVerifier(
             projectId: $this->variables->projectId(),
             clock: $this->clock,
             keySet: new GooglePublicKeys(

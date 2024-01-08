@@ -12,7 +12,7 @@ use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 /**
  * @see https://firebase.google.com/docs/auth/admin/manage-cookies#verify_session_cookie_and_check_permissions
  */
-interface SessionTokenVerifier
+interface SessionCookieVerifier
 {
     public function withLeeway(DateInterval $leeway): self;
 

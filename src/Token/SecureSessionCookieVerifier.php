@@ -2,7 +2,7 @@
 
 namespace Beste\Firebase\JWT\Token;
 
-use Beste\Firebase\JWT\SessionTokenVerifier;
+use Beste\Firebase\JWT\SessionCookieVerifier;
 use Beste\Firebase\JWT\Signer\KeySet;
 use Beste\Firebase\JWT\Validation\Constraint\AuthTimeValidAt;
 use Beste\Firebase\JWT\Validation\Constraint\HasTenant;
@@ -18,7 +18,7 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Validator;
 use Psr\Clock\ClockInterface;
 
-final class SecureSessionTokenVerifier implements SessionTokenVerifier
+final class SecureSessionCookieVerifier implements SessionCookieVerifier
 {
     private DateInterval $leeway;
     private Parser $parser;
@@ -42,7 +42,7 @@ final class SecureSessionTokenVerifier implements SessionTokenVerifier
         $this->validator = new Validator();
     }
 
-    public function withLeeway(DateInterval $leeway): SessionTokenVerifier
+    public function withLeeway(DateInterval $leeway): SessionCookieVerifier
     {
         $new = clone $this;
         $new->leeway = $leeway;
@@ -50,7 +50,7 @@ final class SecureSessionTokenVerifier implements SessionTokenVerifier
         return $new;
     }
 
-    public function withExpectedTenantId(string $tenantId): SessionTokenVerifier
+    public function withExpectedTenantId(string $tenantId): SessionCookieVerifier
     {
         $new = clone $this;
         $new->tenantId = $tenantId;

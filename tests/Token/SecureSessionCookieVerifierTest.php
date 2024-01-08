@@ -8,7 +8,7 @@ use Beste\Clock\SystemClock;
 use Beste\Firebase\JWT\Signer\CertUrl;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
 use Beste\Firebase\JWT\Tests\TestCase;
-use Beste\Firebase\JWT\Token\SecureSessionTokenVerifier;
+use Beste\Firebase\JWT\Token\SecureSessionCookieVerifier;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
@@ -17,11 +17,11 @@ use Psr\Clock\ClockInterface;
 
 /**
  * @internal
- * @covers \Beste\Firebase\JWT\Token\SecureSessionTokenVerifier
+ * @covers \Beste\Firebase\JWT\Token\SecureSessionCookieVerifier
  */
-final class SecureSessionTokenVerifierTest extends TestCase
+final class SecureSessionCookieVerifierTest extends TestCase
 {
-    public function testItAcceptsASessionToken(): void
+    public function testItAcceptsASessionCookie(): void
     {
         $customToken = self::customTokenBuilder()->forUser($uid = 'uid')->getToken();
         $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie($customToken);
@@ -91,11 +91,11 @@ final class SecureSessionTokenVerifierTest extends TestCase
             ->verify($sessionCookie);
     }
 
-    private function verifier(?ClockInterface $clock = null): SecureSessionTokenVerifier
+    private function verifier(?ClockInterface $clock = null): SecureSessionCookieVerifier
     {
         $clock ??= SystemClock::create();
 
-        return new SecureSessionTokenVerifier(
+        return new SecureSessionCookieVerifier(
             projectId: self::variables()->projectId(),
             clock: $clock,
             keySet: new GooglePublicKeys(

@@ -3,8 +3,9 @@
 namespace Beste\Firebase\JWT\Signer;
 
 use Beste\Firebase\JWT\Exception;
+use RuntimeException;
 
-final class KeySetError extends \RuntimeException implements Exception
+final class KeySetError extends RuntimeException implements Exception
 {
     public static function withReason(string $error): self
     {

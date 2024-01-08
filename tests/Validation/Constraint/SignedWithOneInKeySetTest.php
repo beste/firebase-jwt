@@ -35,14 +35,22 @@ final class SignedWithOneInKeySetTest extends TestCase
     }
 
     #[DoesNotPerformAssertions]
-    public function testItAcceptsAValidToken(): void
+    public function testItAcceptsAnExpectedToken(): void
     {
         $token = $this->token(headers: ['kid' => 'kid']);
 
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsAnUnknownKey(): void
+    public function testItExpectsAnUnencryptedToken(): void
+    {
+        $this->expectException(ConstraintViolation::class);
+        $this->expectExceptionMessageMatches('/should pass/i');
+
+        $this->constraint->assert($this->createMock(Token::class));
+    }
+
+    public function testItExpectsAKnownKeyId(): void
     {
         $token = $this->token(headers: ['kid' => 'unknown']);
 
@@ -52,17 +60,7 @@ final class SignedWithOneInKeySetTest extends TestCase
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsNotUnencryptedTokens(): void
-    {
-        $token = $this->createMock(Token::class);
-
-        $this->expectException(ConstraintViolation::class);
-        $this->expectExceptionMessageMatches('/should pass/i');
-
-        $this->constraint->assert($token);
-    }
-
-    public function testItRejectsATokenWithoutAKidHeader(): void
+    public function testItExpectsAKidHeader(): void
     {
         $token = $this->token([]);
 
@@ -72,7 +70,7 @@ final class SignedWithOneInKeySetTest extends TestCase
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsAnEmptyKidHeader(): void
+    public function testItExpectsANonEmptyKidHeader(): void
     {
         $token = $this->token(['kid' => '']);
 
@@ -82,7 +80,7 @@ final class SignedWithOneInKeySetTest extends TestCase
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsANonStringKidHeader(): void
+    public function testItExpectsAStringForTheKidHeader(): void
     {
         $token = $this->token(['kid' => 1]);
 

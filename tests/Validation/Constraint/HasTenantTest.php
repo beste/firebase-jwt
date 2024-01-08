@@ -31,14 +31,22 @@ final class HasTenantTest extends TestCase
     }
 
     #[DoesNotPerformAssertions]
-    public function testItExpectsAToken(): void
+    public function testItAcceptsAnExpectedToken(): void
     {
         $token = $this->token(['firebase' => ['tenant' => 'tenantId']]);
 
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsAMismatchingTenant(): void
+    public function testItExpectsAnUnencryptedToken(): void
+    {
+        $this->expectException(ConstraintViolation::class);
+        $this->expectExceptionMessageMatches('/should pass/');
+
+        $this->constraint->assert($this->createMock(Token::class));
+    }
+
+    public function testItExpectsAMatchingTenant(): void
     {
         $token = $this->token(['firebase' => ['tenant' => 'otherTenantId']]);
 
@@ -48,17 +56,7 @@ final class HasTenantTest extends TestCase
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsNotUnencryptedTokens(): void
-    {
-        $token = $this->createMock(Token::class);
-
-        $this->expectException(ConstraintViolation::class);
-        $this->expectExceptionMessageMatches('/should pass/');
-
-        $this->constraint->assert($token);
-    }
-
-    public function testItRejectsTokensWithoutAFirebaseClaim(): void
+    public function testItExpectsAFirebaseClaim(): void
     {
         $token = $this->token([]);
 
@@ -68,7 +66,7 @@ final class HasTenantTest extends TestCase
         $this->constraint->assert($token);
     }
 
-    public function testIRejectsAnInvalidFirebaseClaim(): void
+    public function testItExpectsAValidFirebaseClaim(): void
     {
         $token = $this->token(['firebase' => 'a string is not an object']);
 
@@ -77,7 +75,7 @@ final class HasTenantTest extends TestCase
         $this->constraint->assert($token);
     }
 
-    public function testItRejectsAMissingTenantClaim(): void
+    public function testItExpectsATenantClaim(): void
     {
         $token = $this->token(['firebase' => []]);
 

@@ -4,16 +4,17 @@ namespace Beste\Firebase\JWT\Tests;
 
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\FirebaseJwtFacade;
-use Beste\Firebase\JWT\Token\CustomTokenBuilder;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
  * @covers \Beste\Firebase\JWT\FirebaseJwtFacade
+ * @covers \Beste\Firebase\JWT\Signer\CertUrl
  * @internal
  */
 final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
@@ -33,25 +34,43 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $token = $this->facade->issueCustomToken(uid: 'uid', customClaims: ['custom' => 'claim']);
 
         $parsed = (new Parser(new JoseEncoder()))->parse($token->toString());
+        assert($parsed instanceof UnencryptedToken);
+
+        $claims = $parsed->claims();
 
         self::assertSame($token->toString(), $parsed->toString());
+        self::assertSame('uid', $claims->get('uid'));
+        self::assertIsArray($claims->get('claims'));
+        self::assertSame('claim', $claims->get('claims')['custom']);
+    }
+
+    public function testItIssuesACustomTokenIncludingATenant(): void
+    {
+        $token = $this->facade->issueCustomToken(uid: 'uid', tenantId: 'tenant');
+
+        $parsed = (new Parser(new JoseEncoder()))->parse($token->toString());
+        assert($parsed instanceof UnencryptedToken);
+
+        $claims = $parsed->claims();
+
+        self::assertSame($token->toString(), $parsed->toString());
+        self::assertSame('uid', $claims->get('uid'));
+        self::assertSame('tenant', $claims->get('tenant_id'));
     }
 
     public function testItVerifiesAnIdToken(): void
     {
-        $customToken = $this->facade
-            ->issueCustomToken(
-                uid: 'github-supporter',
-                customClaims: [
-                    'is_awesome' => true,
-                    'perks' => $perks = [
-                        'badges' => ['premium_user', 'github_supporter'],
-                        'support_tier' => 'individual_support',
-                    ],
-                    'level' => 1,
-                ],
-                tenantId: self::tenantId(),
-            );
+        $customToken = self::customTokenBuilder()
+            ->forUser('github-supporter')
+            ->forTenant(self::tenantId())
+            ->withCustomClaim('is_awesome', true)
+            ->withCustomClaim('perks', $perks = [
+                'badges' => ['premium_user', 'github_supporter'],
+                'support_tier' => 'individual_support',
+            ])
+            ->withCustomClaim('level', 1)
+            ->getToken()
+        ;
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
@@ -76,23 +95,17 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     {
         $tenantId = self::tenantId();
 
-        $customToken = $this->facade->issueCustomToken(uid: 'uid', tenantId: $tenantId);
+        $customToken = self::customTokenBuilder()->forUser('uid')->forTenant($tenantId)->getToken();
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
         $this->facade->verifyIdToken($idToken, $tenantId);
     }
 
-    public function testItRejectsAnExpiredToken(): void
+    public function testItRejectsAnExpiredIdToken(): void
     {
         $clock = FrozenClock::fromUTC();
 
-        $builder = new CustomTokenBuilder(
-            clientEmail: self::variables()->clientEmail(),
-            privateKey: self::variables()->privateKey(),
-            clock: $clock,
-        );
-
-        $customToken = $builder
+        $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
             ->getToken();
@@ -101,7 +114,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
 
         $facade = new FirebaseJwtFacade(
             variables: self::variables(),
-            clock: FrozenClock::at($clock->now()->modify('-11 minutes')),
+            clock: FrozenClock::at($clock->now()->modify('-1 minute')),
         );
 
         $this->expectException(RequiredConstraintsViolated::class);
@@ -111,17 +124,11 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
     }
 
     #[DoesNotPerformAssertions]
-    public function testItAcceptsAnExpiredItTokenWithLeeway(): void
+    public function testItAcceptsAnExpiredIdTokenWithLeeway(): void
     {
         $clock = FrozenClock::fromUTC();
 
-        $builder = new CustomTokenBuilder(
-            clientEmail: self::variables()->clientEmail(),
-            privateKey: self::variables()->privateKey(),
-            clock: $clock,
-        );
-
-        $customToken = $builder
+        $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
             ->getToken();
@@ -130,7 +137,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
 
         $facade = new FirebaseJwtFacade(
             variables: self::variables(),
-            clock: FrozenClock::at($clock->now()->modify('-11 minutes')),
+            clock: FrozenClock::at($clock->now()->modify('-10 minutes')),
         );
 
         $facade->verifyIdToken(jwt: $idToken, leeway: new \DateInterval('PT11M'));

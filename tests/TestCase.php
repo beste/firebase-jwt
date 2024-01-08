@@ -4,26 +4,25 @@ namespace Beste\Firebase\JWT\Tests;
 
 use Beste\Cache\InMemoryCache;
 use Beste\Clock\SystemClock;
+use Beste\Firebase\JWT\CustomTokenBuilder as BuilderInterface;
 use Beste\Firebase\JWT\Environment\EnvironmentVariables;
 use Beste\Firebase\JWT\Environment\Variables;
-use Beste\Firebase\JWT\Tests\Support\CustomTokenExchanger;
+use Beste\Firebase\JWT\Tests\Support\TokenExchanger;
+use Beste\Firebase\JWT\Token\CustomTokenBuilder;
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\FetchAuthTokenCache;
 use Google\Auth\Middleware\AuthTokenMiddleware;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Http\Discovery\Psr17FactoryDiscovery;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Encoding\ChainedFormatter;
-use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Token\Builder as LcobucciBuilder;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 use Psl\Env;
+use Psr\Clock\ClockInterface;
 
 abstract class TestCase extends PHPUnitTestCase
 {
     private static ?Variables $variables = null;
-    private static ?CustomTokenExchanger $customTokenExchanger = null;
+    private static ?TokenExchanger $customTokenExchanger = null;
 
     protected static function variables(): Variables
     {
@@ -45,9 +44,9 @@ abstract class TestCase extends PHPUnitTestCase
         return $tenantId;
     }
 
-    protected static function customTokenExchanger(): CustomTokenExchanger
+    protected static function customTokenExchanger(): TokenExchanger
     {
-        if (self::$customTokenExchanger instanceof CustomTokenExchanger) {
+        if (self::$customTokenExchanger instanceof TokenExchanger) {
             return self::$customTokenExchanger;
         }
 
@@ -69,11 +68,17 @@ abstract class TestCase extends PHPUnitTestCase
         $requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         $streamFactory = Psr17FactoryDiscovery::findStreamFactory();
 
-        return self::$customTokenExchanger = new CustomTokenExchanger(self::variables()->projectId(), $client, $requestFactory, $streamFactory);
+        return self::$customTokenExchanger = new TokenExchanger(self::variables()->projectId(), $client, $requestFactory, $streamFactory);
     }
 
-    protected static function lcobucciBuilder(): Builder
+    protected static function customTokenBuilder(?ClockInterface $clock = null): BuilderInterface
     {
-        return new LcobucciBuilder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
+        $clock ??= SystemClock::create();
+
+        return (new CustomTokenBuilder(
+            clientEmail: self::variables()->clientEmail(),
+            privateKey: self::variables()->privateKey(),
+            clock: $clock,
+        ));
     }
 }

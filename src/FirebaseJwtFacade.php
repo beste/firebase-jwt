@@ -8,6 +8,7 @@ use Beste\Firebase\JWT\Environment\Variables;
 use Beste\Firebase\JWT\Signer\CertUrl;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
 use Beste\Firebase\JWT\Token\SecureIdTokenVerifier;
+use Beste\Firebase\JWT\Token\SecureSessionTokenVerifier;
 use DateInterval;
 use DateTimeImmutable;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -108,6 +109,39 @@ final class FirebaseJwtFacade
     public function verifyIdToken(string $jwt, ?string $expectedTenantId = null, ?DateInterval $leeway = null): UnencryptedToken
     {
         $verifier = $this->idTokenVerifier();
+
+        if ($expectedTenantId !== null) {
+            $verifier = $verifier->withExpectedTenantId($expectedTenantId);
+        }
+
+        if ($leeway !== null) {
+            $verifier = $verifier->withLeeway($leeway);
+        }
+
+        return $verifier->verify($jwt);
+    }
+
+    private function sessionCookieVerifier(): SessionTokenVerifier
+    {
+        return new SecureSessionTokenVerifier(
+            projectId: $this->variables->projectId(),
+            clock: $this->clock,
+            keySet: new GooglePublicKeys(
+                CertUrl::forSessionCookieVerification(),
+                $this->client,
+                $this->requestFactory,
+                $this->cache,
+            )
+        );
+    }
+
+    /**
+     * @param non-empty-string $jwt
+     * @param non-empty-string|null $expectedTenantId
+     */
+    public function verifySessionCookie(string $jwt, ?string $expectedTenantId = null, ?DateInterval $leeway = null): UnencryptedToken
+    {
+        $verifier = $this->sessionCookieVerifier();
 
         if ($expectedTenantId !== null) {
             $verifier = $verifier->withExpectedTenantId($expectedTenantId);

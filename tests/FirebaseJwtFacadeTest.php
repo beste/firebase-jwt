@@ -135,4 +135,64 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
 
         $facade->verifyIdToken(jwt: $idToken, leeway: new \DateInterval('PT11M'));
     }
+
+    #[DoesNotPerformAssertions]
+    public function testItVerifiesASessionCookie(): void
+    {
+        $customToken = self::customTokenBuilder()->forUser('uid')->getToken();
+        $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie($customToken);
+
+        $this->facade->verifySessionCookie($sessionCookie);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testItVerifiesASessionCookieWithATenantId(): void
+    {
+        $tenantId = self::tenantId();
+
+        $customToken = self::customTokenBuilder()->forUser('uid')->forTenant($tenantId)->getToken();
+        $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie($customToken);
+
+        $this->facade->verifySessionCookie($sessionCookie, $tenantId);
+    }
+
+    public function testItRejectsAnExpiredSessionCookie(): void
+    {
+        $customToken = self::customTokenBuilder()->forUser('uid')->getToken();
+        $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie(
+            customToken: $customToken,
+            idTokenExpiresAfter: new \DateInterval('PT10M')
+        );
+
+        $clock = FrozenClock::fromUTC();
+
+        $facade = new FirebaseJwtFacade(
+            variables: self::variables(),
+            clock: FrozenClock::at($clock->now()->modify('-1 minutes')),
+        );
+
+        $this->expectException(RequiredConstraintsViolated::class);
+        $this->expectExceptionMessageMatches('/future/');
+
+        $facade->verifySessionCookie(jwt: $sessionCookie);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testItAcceptsAnExpiredSessionCookieWithLeeway(): void
+    {
+        $clock = FrozenClock::fromUTC();
+
+        $customToken = self::customTokenBuilder()->forUser('uid')->getToken();
+        $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie(
+            customToken: $customToken,
+            idTokenExpiresAfter: new \DateInterval('PT10M')
+        );
+
+        $facade = new FirebaseJwtFacade(
+            variables: self::variables(),
+            clock: FrozenClock::at($clock->now()->modify('-10 minutes')),
+        );
+
+        $facade->verifySessionCookie(jwt: $sessionCookie, leeway: new \DateInterval('PT11M'));
+    }
 }

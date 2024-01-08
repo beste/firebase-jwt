@@ -21,11 +21,11 @@ final class GooglePublicKeys implements KeySet
      * @param non-empty-string $certUrl
      */
     public function __construct(
-        private string $certUrl,
-        private ClientInterface $client,
-        private RequestFactoryInterface $requestFactory,
-        private CacheItemPoolInterface $cache,
-        private string $cacheKeyPrefix = 'bfj_',
+        private readonly string $certUrl,
+        private readonly ClientInterface $client,
+        private readonly RequestFactoryInterface $requestFactory,
+        private readonly CacheItemPoolInterface $cache,
+        private readonly string $cacheKeyPrefix = 'bfj_',
     ) {}
 
 

@@ -12,7 +12,7 @@ use Lcobucci\JWT\Validation\ConstraintViolation;
 
 final class SignedWithOneInKeySet implements Constraint
 {
-    public function __construct(private KeySet $keySet, private Signer $signer) {}
+    public function __construct(private readonly KeySet $keySet, private readonly Signer $signer) {}
 
     public function assert(Token $token): void
     {

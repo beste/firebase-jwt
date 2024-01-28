@@ -3,6 +3,7 @@
 namespace Beste\Firebase\JWT\Tests;
 
 use Beste\Cache\InMemoryCache;
+use Beste\Clock\FrozenClock;
 use Beste\Clock\SystemClock;
 use Beste\Firebase\JWT\CustomTokenBuilder as BuilderInterface;
 use Beste\Firebase\JWT\Environment\EnvironmentVariables;
@@ -17,7 +18,6 @@ use GuzzleHttp\HandlerStack;
 use Http\Discovery\Psr17FactoryDiscovery;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 use Psl\Env;
-use Psr\Clock\ClockInterface;
 
 abstract class TestCase extends PHPUnitTestCase
 {
@@ -71,14 +71,12 @@ abstract class TestCase extends PHPUnitTestCase
         return self::$customTokenExchanger = new TokenExchanger(self::variables()->projectId(), $client, $requestFactory, $streamFactory);
     }
 
-    protected static function customTokenBuilder(?ClockInterface $clock = null): BuilderInterface
+    protected static function customTokenBuilder(): BuilderInterface
     {
-        $clock ??= SystemClock::create();
-
         return (new CustomTokenBuilder(
             clientEmail: self::variables()->clientEmail(),
             privateKey: self::variables()->privateKey(),
-            clock: $clock,
+            clock: FrozenClock::fromUTC(),
         ));
     }
 }

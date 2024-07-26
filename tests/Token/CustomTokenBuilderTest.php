@@ -80,7 +80,8 @@ final class CustomTokenBuilderTest extends TestCase
 
         $token = $this->builder()
             ->expiresAfter($expiresAfter)
-            ->getToken();
+            ->getToken()
+        ;
 
         $parsed = $this->parse($token);
         $claims = $parsed->claims();

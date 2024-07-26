@@ -19,6 +19,9 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 use Psl\Env;
 
+/**
+ * @internal
+ */
 abstract class TestCase extends PHPUnitTestCase
 {
     private static ?Variables $variables = null;
@@ -63,7 +66,7 @@ abstract class TestCase extends PHPUnitTestCase
         $client =  new Client([
             'handler' => $stack,
             'http_errors' => false,
-            'auth' => 'google_auth'  // authorize all requests
+            'auth' => 'google_auth',  // authorize all requests
         ]);
         $requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         $streamFactory = Psr17FactoryDiscovery::findStreamFactory();

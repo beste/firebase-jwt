@@ -40,7 +40,8 @@ final class SecureSessionCookieVerifierTest extends TestCase
         $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->forTenant($tenantId)
-            ->getToken();
+            ->getToken()
+        ;
 
         $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie(
             customToken: $customToken,
@@ -49,7 +50,8 @@ final class SecureSessionCookieVerifierTest extends TestCase
 
         $this->verifier()
             ->withExpectedTenantId($tenantId)
-            ->verify($sessionCookie);
+            ->verify($sessionCookie)
+        ;
     }
 
     public function testItRejectsAnInvalidAuthTime(): void
@@ -57,7 +59,8 @@ final class SecureSessionCookieVerifierTest extends TestCase
         $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
-            ->getToken();
+            ->getToken()
+        ;
 
         $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie($customToken);
 
@@ -78,7 +81,8 @@ final class SecureSessionCookieVerifierTest extends TestCase
 
         $customToken = self::customTokenBuilder($correctClock)
             ->forUser('uid')
-            ->getToken();
+            ->getToken()
+        ;
 
         $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie(
             customToken: $customToken,
@@ -88,7 +92,8 @@ final class SecureSessionCookieVerifierTest extends TestCase
         // It is one hour later, but the token expired after 10 minutes, so 50 minutes ago
         $this->verifier($futureClock)
             ->withLeeway(new \DateInterval('PT51M'))
-            ->verify($sessionCookie);
+            ->verify($sessionCookie)
+        ;
     }
 
     private function verifier(?ClockInterface $clock = null): SecureSessionCookieVerifier
@@ -103,7 +108,7 @@ final class SecureSessionCookieVerifierTest extends TestCase
                 Psr18ClientDiscovery::find(),
                 Psr17FactoryDiscovery::findRequestFactory(),
                 new InMemoryCache($clock),
-            )
+            ),
         );
     }
 }

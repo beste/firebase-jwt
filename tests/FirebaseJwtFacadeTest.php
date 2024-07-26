@@ -108,7 +108,8 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
-            ->getToken();
+            ->getToken()
+        ;
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
@@ -131,7 +132,8 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
-            ->getToken();
+            ->getToken()
+        ;
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
@@ -168,7 +170,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $customToken = self::customTokenBuilder()->forUser('uid')->getToken();
         $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie(
             customToken: $customToken,
-            idTokenExpiresAfter: new \DateInterval('PT10M')
+            idTokenExpiresAfter: new \DateInterval('PT10M'),
         );
 
         $clock = FrozenClock::fromUTC();
@@ -192,7 +194,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $customToken = self::customTokenBuilder()->forUser('uid')->getToken();
         $sessionCookie = self::customTokenExchanger()->exchangeCustomTokenForSessionCookie(
             customToken: $customToken,
-            idTokenExpiresAfter: new \DateInterval('PT10M')
+            idTokenExpiresAfter: new \DateInterval('PT10M'),
         );
 
         $facade = new FirebaseJwtFacade(

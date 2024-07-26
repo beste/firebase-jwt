@@ -98,7 +98,7 @@ final class FirebaseJwtFacade
                 $this->client,
                 $this->requestFactory,
                 $this->cache,
-            )
+            ),
         );
     }
 
@@ -131,7 +131,7 @@ final class FirebaseJwtFacade
                 $this->client,
                 $this->requestFactory,
                 $this->cache,
-            )
+            ),
         );
     }
 

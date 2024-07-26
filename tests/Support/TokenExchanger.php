@@ -57,7 +57,8 @@ final class TokenExchanger
         $request = $this->requestFactory
             ->createRequest('POST', 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken')
             ->withBody($this->streamFactory->createStream($json))
-            ->withHeader('Accept', 'application/json');
+            ->withHeader('Accept', 'application/json')
+        ;
 
         $response = $this->client->sendRequest($request);
         assert($response->getStatusCode() === 200);
@@ -100,7 +101,8 @@ final class TokenExchanger
         $request = $this->requestFactory
             ->createRequest('POST', $url)
             ->withBody($this->streamFactory->createStream($json))
-            ->withHeader('Accept', 'application/json');
+            ->withHeader('Accept', 'application/json')
+        ;
 
         $response = $this->client->sendRequest($request);
         assert($response->getStatusCode() === 200);
@@ -126,7 +128,7 @@ final class TokenExchanger
         return  $this->exchangeIdTokenForSessionCookie(
             idToken: $this->parser->parse($idToken),
             tenantId: $tenantId,
-            expiresAfter: $idTokenExpiresAfter
+            expiresAfter: $idTokenExpiresAfter,
         );
     }
 }

@@ -50,7 +50,7 @@ final class EnvironmentVariablesTest extends TestCase
         Env\set_var(self::ENV_VAR, Json\encode([
             'project_id' => $projectId,
             'client_email' => $clientEmail,
-            'private_key' => $privateKey
+            'private_key' => $privateKey,
         ]));
 
         $variables = EnvironmentVariables::fromEnvironment(self::ENV_VAR);

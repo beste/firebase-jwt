@@ -52,7 +52,8 @@ final class GooglePublicKeysTest extends TestCase
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willThrowException(new $exception(__FUNCTION__));
+            ->willThrowException(new $exception(__FUNCTION__))
+        ;
 
         $this->expectException(KeySetError::class);
 
@@ -63,12 +64,14 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream('{'));
+            ->withBody($this->streamFactory->createStream('{'))
+        ;
 
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $this->expectException(KeySetError::class);
 
@@ -79,12 +82,14 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream('"not an object"'));
+            ->withBody($this->streamFactory->createStream('"not an object"'))
+        ;
 
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $this->expectException(KeySetError::class);
 
@@ -96,12 +101,14 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream(Json\encode(['foo' => '-----BEGIN CERTIFICATE-----'])));
+            ->withBody($this->streamFactory->createStream(Json\encode(['foo' => '-----BEGIN CERTIFICATE-----'])))
+        ;
 
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $keySet->findKeyById('foo');
     }
@@ -110,12 +117,14 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])));
+            ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])))
+        ;
 
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $this->expectException(KeyNotFound::class);
         $keySet->findKeyById('bar');
@@ -126,12 +135,14 @@ final class GooglePublicKeysTest extends TestCase
         $keySet = $this->keySetWithMockedClient();
 
         $response = $this->responseFactory->createResponse(code: 500)
-            ->withBody($this->streamFactory->createStream('Error'));
+            ->withBody($this->streamFactory->createStream('Error'))
+        ;
 
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $this->expectException(KeySetError::class);
         $keySet->findKeyById('foo');
@@ -143,13 +154,15 @@ final class GooglePublicKeysTest extends TestCase
 
         $response = $this->responseFactory->createResponse(code: 200)
             ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])))
-            ->withHeader('Cache-Control', 'max-age=60');
+            ->withHeader('Cache-Control', 'max-age=60')
+        ;
 
         $this->mockedClient
             ->expects(self::once())
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $keySet->findKeyById('kid');
         $keySet->findKeyById('kid');
@@ -161,12 +174,14 @@ final class GooglePublicKeysTest extends TestCase
 
         $response = $this->responseFactory->createResponse(code: 200)
             ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])))
-            ->withHeader('Cache-Control', 'max-age=60');
+            ->withHeader('Cache-Control', 'max-age=60')
+        ;
 
         $this->mockedClient
             ->method('sendRequest')
             ->withAnyParameters()
-            ->willReturn($response);
+            ->willReturn($response)
+        ;
 
         $keySet->findKeyById('kid');
 
@@ -194,11 +209,11 @@ final class GooglePublicKeysTest extends TestCase
     public static function invalidKeys(): iterable
     {
         yield "empty key" => [
-            ["" => '-----BEGIN CERTIFICATE-----']
+            ["" => '-----BEGIN CERTIFICATE-----'],
         ];
 
         yield "unexpected value" => [
-            ["key_id" => 'not a certificate']
+            ["key_id" => 'not a certificate'],
         ];
     }
 }

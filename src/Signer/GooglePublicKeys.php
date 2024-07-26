@@ -72,7 +72,7 @@ final class GooglePublicKeys implements KeySet
         $match = Regex\first_match(
             $response->getHeaderLine('Cache-Control'),
             '/max-age=(?P<max_age>\d+)/i',
-            Regex\capture_groups(['max_age'])
+            Regex\capture_groups(['max_age']),
         );
 
         return $match === null ? null : new DateInterval(Str\format('PT%dM', $match['max_age']));

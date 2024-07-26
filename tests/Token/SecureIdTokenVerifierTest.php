@@ -27,7 +27,8 @@ final class SecureIdTokenVerifierTest extends TestCase
         $customToken = self::customTokenBuilder()->forUser($uid = 'uid')->getToken();
 
         $idToken = self::customTokenExchanger()
-            ->exchangeCustomTokenForIdToken($customToken);
+            ->exchangeCustomTokenForIdToken($customToken)
+        ;
 
         $verified = $this->verifier()->verify($idToken);
 
@@ -43,13 +44,15 @@ final class SecureIdTokenVerifierTest extends TestCase
         $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->forTenant($tenantId)
-            ->getToken();
+            ->getToken()
+        ;
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
         $this->verifier()
             ->withExpectedTenantId($tenantId)
-            ->verify($idToken);
+            ->verify($idToken)
+        ;
     }
 
     public function testItRejectsAnExpiredIdToken(): void
@@ -57,7 +60,8 @@ final class SecureIdTokenVerifierTest extends TestCase
         $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
-            ->getToken();
+            ->getToken()
+        ;
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
@@ -79,14 +83,16 @@ final class SecureIdTokenVerifierTest extends TestCase
         $customToken = self::customTokenBuilder($correctClock)
             ->forUser('uid')
             ->expiresAfter(new \DateInterval('PT10M'))
-            ->getToken();
+            ->getToken()
+        ;
 
         $idToken = self::customTokenExchanger()->exchangeCustomTokenForIdToken($customToken);
 
         // It is one hour later, but the token expired after 10 minutes, so 50 minutes ago
         $this->verifier($futureClock)
             ->withLeeway(new \DateInterval('PT51M'))
-            ->verify($idToken);
+            ->verify($idToken)
+        ;
     }
 
     private function verifier(?ClockInterface $clock = null): SecureIdTokenVerifier
@@ -101,7 +107,7 @@ final class SecureIdTokenVerifierTest extends TestCase
                 Psr18ClientDiscovery::find(),
                 Psr17FactoryDiscovery::findRequestFactory(),
                 new InMemoryCache($clock),
-            )
+            ),
         );
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Token;
 
 use Beste\Firebase\JWT\CustomTokenBuilder as CustomTokenBuilderInterface;
@@ -16,8 +18,8 @@ use SensitiveParameter;
 
 final class CustomTokenBuilder implements CustomTokenBuilderInterface
 {
-    private const AUDIENCE = 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit';
-    private const DEFAULT_TTL = 'PT5M';
+    private const string AUDIENCE = 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit';
+    private const string DEFAULT_TTL = 'PT5M';
 
     private InMemory $privateKey;
     private Signer $signer;
@@ -87,7 +89,7 @@ final class CustomTokenBuilder implements CustomTokenBuilderInterface
     {
         $now = $this->clock->now();
 
-        $builder = (new LcobucciBuilder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates()))
+        $builder = LcobucciBuilder::new(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates())
             ->issuedBy($this->clientEmail)
             ->relatedTo($this->clientEmail)
             ->issuedAt($now)

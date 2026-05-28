@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Environment;
 
 interface Variables

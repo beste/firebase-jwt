@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Validation\Constraint;
 
 use DateInterval;
@@ -11,20 +13,20 @@ use Lcobucci\JWT\Validation\ConstraintViolation;
 use Lcobucci\JWT\Validation\ValidAt;
 use Psr\Clock\ClockInterface as Clock;
 
-final class AuthTimeValidAt implements ValidAt
+final readonly class AuthTimeValidAt implements ValidAt
 {
-    private const MICROSECOND_PRECISION = 6;
+    private const int MICROSECOND_PRECISION = 6;
 
-    private readonly DateInterval $leeway;
+    private DateInterval $leeway;
 
-    public function __construct(private readonly Clock $clock, ?DateInterval $leeway = null)
+    public function __construct(private Clock $clock, ?DateInterval $leeway = null)
     {
         $this->leeway = $this->guardLeeway($leeway);
     }
 
     private function guardLeeway(?DateInterval $leeway): DateInterval
     {
-        if ($leeway === null) {
+        if (!$leeway instanceof \DateInterval) {
             return new DateInterval('PT0S');
         }
 
@@ -61,7 +63,7 @@ final class AuthTimeValidAt implements ValidAt
             throw ConstraintViolation::error('`auth_time` claim is not parseable', $this);
         }
 
-        if (!($now->add($this->leeway) >= $date)) {
+        if ($now->add($this->leeway) < $date) {
             throw ConstraintViolation::error('The token was authenticated in the future', $this);
         }
     }

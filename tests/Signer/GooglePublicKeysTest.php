@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Signer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Cache\InMemoryCache;
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
@@ -11,19 +14,20 @@ use Beste\Firebase\JWT\Tests\TestCase;
 use Http\Discovery\Psr17FactoryDiscovery;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\MockObject\MockObject;
-use Psl\Json;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 
+use function Psl\Json\encode;
+
 /**
- * @covers \Beste\Firebase\JWT\Signer\GooglePublicKeys
- * @covers \Beste\Firebase\JWT\Signer\KeyNotFound
- * @covers \Beste\Firebase\JWT\Signer\KeySetError
  * @internal
  */
+#[CoversClass(GooglePublicKeys::class)]
+#[CoversClass(KeyNotFound::class)]
+#[CoversClass(KeySetError::class)]
 final class GooglePublicKeysTest extends TestCase
 {
     private MockObject&ClientInterface $mockedClient;
@@ -47,7 +51,7 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
 
-        $exception = new class () extends \RuntimeException implements ClientExceptionInterface {};
+        $exception = new class extends \RuntimeException implements ClientExceptionInterface {};
 
         $this->mockedClient
             ->method('sendRequest')
@@ -101,7 +105,7 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream(Json\encode(['foo' => '-----BEGIN CERTIFICATE-----'])))
+            ->withBody($this->streamFactory->createStream(encode(['foo' => '-----BEGIN CERTIFICATE-----'])))
         ;
 
         $this->mockedClient
@@ -117,7 +121,7 @@ final class GooglePublicKeysTest extends TestCase
     {
         $keySet = $this->keySetWithMockedClient();
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])))
+            ->withBody($this->streamFactory->createStream(encode(['kid' => 'key'])))
         ;
 
         $this->mockedClient
@@ -153,7 +157,7 @@ final class GooglePublicKeysTest extends TestCase
         $keySet = $this->keySetWithMockedClient();
 
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])))
+            ->withBody($this->streamFactory->createStream(encode(['kid' => 'key'])))
             ->withHeader('Cache-Control', 'max-age=60')
         ;
 
@@ -173,7 +177,7 @@ final class GooglePublicKeysTest extends TestCase
         $keySet = $this->keySetWithMockedClient(cacheKeyPrefix: 'prefix_');
 
         $response = $this->responseFactory->createResponse(code: 200)
-            ->withBody($this->streamFactory->createStream(Json\encode(['kid' => 'key'])))
+            ->withBody($this->streamFactory->createStream(encode(['kid' => 'key'])))
             ->withHeader('Cache-Control', 'max-age=60')
         ;
 
@@ -185,7 +189,7 @@ final class GooglePublicKeysTest extends TestCase
 
         $keySet->findKeyById('kid');
 
-        assert($this->cache->getItem('prefix_kid')->isHit() === true); // We don't test this, just assert the pre-condition is true
+        $this->assertTrue($this->cache->getItem('prefix_kid')->isHit()); // We don't test this, just assert the pre-condition is true
 
         $this->clock->setTo($this->clock->now()->modify('+61 minutes'));
 
@@ -201,19 +205,5 @@ final class GooglePublicKeysTest extends TestCase
             cache: $this->cache,
             cacheKeyPrefix: $cacheKeyPrefix,
         );
-    }
-
-    /**
-     * @return iterable<array<array<string, string>>>
-     */
-    public static function invalidKeys(): iterable
-    {
-        yield "empty key" => [
-            ["" => '-----BEGIN CERTIFICATE-----'],
-        ];
-
-        yield "unexpected value" => [
-            ["key_id" => 'not a certificate'],
-        ];
     }
 }

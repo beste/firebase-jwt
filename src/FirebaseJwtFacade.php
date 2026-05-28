@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT;
 
 use Beste\Cache\InMemoryCache;
@@ -19,7 +21,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 
-final class FirebaseJwtFacade
+final readonly class FirebaseJwtFacade
 {
     private ClockInterface $clock;
     private ClientInterface $client;
@@ -27,13 +29,13 @@ final class FirebaseJwtFacade
     private CacheItemPoolInterface $cache;
 
     public function __construct(
-        private readonly Variables $variables,
+        private Variables $variables,
         ?ClockInterface $clock = null,
         ?ClientInterface $client = null,
         ?RequestFactoryInterface $requestFactory = null,
         ?CacheItemPoolInterface $cache = null,
     ) {
-        $this->clock = $clock ?? new class () implements ClockInterface {
+        $this->clock = $clock ?? new class implements ClockInterface {
             public function now(): DateTimeImmutable
             {
                 return new DateTimeImmutable();
@@ -114,7 +116,7 @@ final class FirebaseJwtFacade
             $verifier = $verifier->withExpectedTenantId($expectedTenantId);
         }
 
-        if ($leeway !== null) {
+        if ($leeway instanceof \DateInterval) {
             $verifier = $verifier->withLeeway($leeway);
         }
 
@@ -147,7 +149,7 @@ final class FirebaseJwtFacade
             $verifier = $verifier->withExpectedTenantId($expectedTenantId);
         }
 
-        if ($leeway !== null) {
+        if ($leeway instanceof \DateInterval) {
             $verifier = $verifier->withLeeway($leeway);
         }
 

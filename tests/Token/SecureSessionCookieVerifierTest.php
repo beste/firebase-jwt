@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Token;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Cache\InMemoryCache;
 use Beste\Clock\FrozenClock;
 use Beste\Clock\SystemClock;
@@ -17,8 +20,8 @@ use Psr\Clock\ClockInterface;
 
 /**
  * @internal
- * @covers \Beste\Firebase\JWT\Token\SecureSessionCookieVerifier
  */
+#[CoversClass(SecureSessionCookieVerifier::class)]
 final class SecureSessionCookieVerifierTest extends TestCase
 {
     public function testItAcceptsASessionCookie(): void
@@ -75,11 +78,11 @@ final class SecureSessionCookieVerifierTest extends TestCase
     #[DoesNotPerformAssertions]
     public function testItAcceptsAnExpiredIdTokenWithLeeway(): void
     {
-        $correctClock = SystemClock::create();
+        SystemClock::create();
         $futureClock = FrozenClock::fromUTC();
         $futureClock->setTo($futureClock->now()->modify('+1 hour'));
 
-        $customToken = self::customTokenBuilder($correctClock)
+        $customToken = self::customTokenBuilder()
             ->forUser('uid')
             ->getToken()
         ;

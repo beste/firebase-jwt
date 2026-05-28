@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Token;
 
 use Beste\Firebase\JWT\SessionCookieVerifier;

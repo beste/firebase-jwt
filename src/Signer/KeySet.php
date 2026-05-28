@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Signer;
 
 use Lcobucci\JWT\Signer\Key;

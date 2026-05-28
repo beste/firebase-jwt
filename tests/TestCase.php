@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests;
 
 use Beste\Cache\InMemoryCache;
@@ -17,7 +19,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Http\Discovery\Psr17FactoryDiscovery;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
-use Psl\Env;
+
+use function Psl\Env\get_var;
 
 /**
  * @internal
@@ -29,7 +32,7 @@ abstract class TestCase extends PHPUnitTestCase
 
     protected static function variables(): Variables
     {
-        if (self::$variables !== null) {
+        if (self::$variables instanceof Variables) {
             return self::$variables;
         }
 
@@ -41,7 +44,7 @@ abstract class TestCase extends PHPUnitTestCase
      */
     protected static function tenantId(): string
     {
-        $tenantId = Env\get_var('FIREBASE_TENANT_ID');
+        $tenantId = get_var('FIREBASE_TENANT_ID');
         assert(is_string($tenantId) && $tenantId !== '');
 
         return $tenantId;

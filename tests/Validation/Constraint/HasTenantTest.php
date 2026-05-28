@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Validation\Constraint;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Firebase\JWT\Tests\TestCase;
 use Beste\Firebase\JWT\Validation\Constraint\HasTenant;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
@@ -16,9 +19,8 @@ use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
  * @internal
- *
- * @covers \Beste\Firebase\JWT\Validation\Constraint\HasTenant
  */
+#[CoversClass(HasTenant::class)]
 final class HasTenantTest extends TestCase
 {
     private InMemory $privateKey;
@@ -43,7 +45,7 @@ final class HasTenantTest extends TestCase
         $this->expectException(ConstraintViolation::class);
         $this->expectExceptionMessageMatches('/should pass/');
 
-        $this->constraint->assert($this->createMock(Token::class));
+        $this->constraint->assert($this->createStub(Token::class));
     }
 
     public function testItExpectsAMatchingTenant(): void
@@ -89,7 +91,7 @@ final class HasTenantTest extends TestCase
      */
     private function token(array $claims): UnencryptedToken
     {
-        $builder = new Builder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
+        $builder = Builder::new(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
 
         foreach ($claims as $name => $value) {
             $builder = $builder->withClaim($name, $value);

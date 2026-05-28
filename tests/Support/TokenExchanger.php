@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Support;
 
 use Beste\Clock\SystemClock;
@@ -16,7 +18,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 /**
  * @internal
  */
-final class TokenExchanger
+final readonly class TokenExchanger
 {
     private Parser $parser;
     private ClockInterface $clock;
@@ -25,10 +27,10 @@ final class TokenExchanger
      * @param non-empty-string $projectId
      */
     public function __construct(
-        private readonly string $projectId,
-        private readonly ClientInterface $client,
-        private readonly RequestFactoryInterface $requestFactory,
-        private readonly StreamFactoryInterface $streamFactory,
+        private string $projectId,
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory,
+        private StreamFactoryInterface $streamFactory,
     ) {
         $this->parser = new Parser(new JoseEncoder());
         $this->clock = SystemClock::create();
@@ -68,7 +70,7 @@ final class TokenExchanger
         assert(array_key_exists('idToken', $result));
 
         $idToken =  $result['idToken'];
-        assert($idToken !== '');
+        assert(is_string($idToken) && $idToken !== '');
 
         return $idToken;
     }
@@ -112,7 +114,7 @@ final class TokenExchanger
         assert(array_key_exists('sessionCookie', $result));
 
         $sessionCookie =  $result['sessionCookie'];
-        assert($sessionCookie !== '');
+        assert(is_string($sessionCookie) && $sessionCookie !== '');
 
         return $sessionCookie;
     }
@@ -123,7 +125,7 @@ final class TokenExchanger
     public function exchangeCustomTokenForSessionCookie(UnencryptedToken $customToken, ?string $tenantId = null, ?DateInterval $idTokenExpiresAfter = null): string
     {
         $idToken = $this->exchangeCustomTokenForIdToken($customToken);
-        $t = $this->parser->parse($idToken);
+        $this->parser->parse($idToken);
 
         return  $this->exchangeIdTokenForSessionCookie(
             idToken: $this->parser->parse($idToken),

@@ -1,31 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests;
 
+use Beste\Firebase\JWT\Signer\CertUrl;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\FirebaseJwtFacade;
 use Lcobucci\JWT\Encoding\JoseEncoder;
-use Lcobucci\JWT\Signer;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
- * @covers \Beste\Firebase\JWT\FirebaseJwtFacade
- * @covers \Beste\Firebase\JWT\Signer\CertUrl
  * @internal
  */
-final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
+#[CoversClass(FirebaseJwtFacade::class)]
+#[CoversClass(CertUrl::class)]
+final class FirebaseJwtFacadeTest extends TestCase
 {
-    protected Signer $signer;
-    protected FirebaseJwtFacade $facade;
+    private FirebaseJwtFacade $facade;
 
     protected function setUp(): void
     {
-        $this->signer = new Sha256();
-
         $this->facade = FirebaseJwtFacade::createFromEnvironment();
     }
 
@@ -34,7 +33,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $token = $this->facade->issueCustomToken(uid: 'uid', customClaims: ['custom' => 'claim']);
 
         $parsed = (new Parser(new JoseEncoder()))->parse($token->toString());
-        assert($parsed instanceof UnencryptedToken);
+        $this->assertInstanceOf(UnencryptedToken::class, $parsed);
 
         $claims = $parsed->claims();
 
@@ -49,7 +48,7 @@ final class FirebaseJwtFacadeTest extends \Beste\Firebase\JWT\Tests\TestCase
         $token = $this->facade->issueCustomToken(uid: 'uid', tenantId: 'tenant');
 
         $parsed = (new Parser(new JoseEncoder()))->parse($token->toString());
-        assert($parsed instanceof UnencryptedToken);
+        $this->assertInstanceOf(UnencryptedToken::class, $parsed);
 
         $claims = $parsed->claims();
 

@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Token;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use Lcobucci\JWT\Validation\Constraint\HasClaimWithValue;
+use Lcobucci\JWT\Token\RegisteredClaims;
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\Tests\TestCase;
 use Beste\Firebase\JWT\Token\CustomTokenBuilder;
@@ -18,9 +23,9 @@ use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
- * @covers \Beste\Firebase\JWT\Token\CustomTokenBuilder
  * @internal
  */
+#[CoversClass(CustomTokenBuilder::class)]
 final class CustomTokenBuilderTest extends TestCase
 {
     private FrozenClock $clock;
@@ -68,7 +73,7 @@ final class CustomTokenBuilderTest extends TestCase
 
         $this->parse(
             $token,
-            new Constraint\HasClaimWithValue('uid', __FUNCTION__),
+            new HasClaimWithValue('uid', __FUNCTION__),
         );
     }
 
@@ -85,8 +90,8 @@ final class CustomTokenBuilderTest extends TestCase
 
         $parsed = $this->parse($token);
         $claims = $parsed->claims();
-        $expiration = $claims->get(Token\RegisteredClaims::EXPIRATION_TIME);
-        assert($expiration instanceof \DateTimeImmutable);
+        $expiration = $claims->get(RegisteredClaims::EXPIRATION_TIME);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $expiration);
 
         self::assertSame($expiresAt->format('U'), $expiration->format('U'));
     }
@@ -107,7 +112,7 @@ final class CustomTokenBuilderTest extends TestCase
 
         $this->parse(
             $token,
-            new Constraint\HasClaimWithValue('name', 'value'),
+            new HasClaimWithValue('name', 'value'),
         );
     }
 
@@ -120,7 +125,7 @@ final class CustomTokenBuilderTest extends TestCase
 
         $this->parse(
             $token,
-            new Constraint\HasClaimWithValue('tenant_id', $tenantId),
+            new HasClaimWithValue('tenant_id', $tenantId),
         );
     }
 
@@ -131,7 +136,7 @@ final class CustomTokenBuilderTest extends TestCase
 
         $this->parse(
             $token,
-            new Constraint\HasClaimWithValue('claims', ['claim' => 'value']),
+            new HasClaimWithValue('claims', ['claim' => 'value']),
         );
     }
 

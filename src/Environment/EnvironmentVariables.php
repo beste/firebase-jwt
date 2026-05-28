@@ -1,17 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Environment;
 
-use Psl;
-use Psl\Env;
-use Psl\File;
-use Psl\Json;
-use Psl\Str;
-use Psl\Type;
+use Psl\Json\Exception\DecodeException;
 use RuntimeException;
 use SensitiveParameter;
 
-final class EnvironmentVariables implements Variables
+use function Psl\Str\starts_with;
+use function Psl\File\read;
+use function Psl\Json\typed;
+use function Psl\Type\shape;
+use function Psl\Type\non_empty_string;
+use function Psl\Env\get_var;
+use function Psl\invariant;
+use function Psl\Str\format;
+
+final readonly class EnvironmentVariables implements Variables
 {
     /**
      * @param non-empty-string $projectId
@@ -19,10 +25,10 @@ final class EnvironmentVariables implements Variables
      * @param non-empty-string $privateKey
      */
     public function __construct(
-        private readonly string $projectId,
-        private readonly string $clientEmail,
+        private string $projectId,
+        private string $clientEmail,
         #[SensitiveParameter]
-        private readonly string $privateKey,
+        private string $privateKey,
     ) {}
 
     /**
@@ -35,18 +41,18 @@ final class EnvironmentVariables implements Variables
 
         $contents = self::getenv($key);
 
-        if (Str\starts_with($contents, '{') === false) {
-            $contents = File\read($contents);
+        if (starts_with($contents, '{') === false) {
+            $contents = read($contents);
         }
 
         try {
-            $serviceAccount = Json\typed($contents, Type\shape([
-                'project_id' => Type\non_empty_string(),
-                'client_email' => Type\non_empty_string(),
-                'private_key' => Type\non_empty_string(),
+            $serviceAccount = typed($contents, shape([
+                'project_id' => non_empty_string(),
+                'client_email' => non_empty_string(),
+                'private_key' => non_empty_string(),
             ]));
-        } catch (Json\Exception\DecodeException $e) {
-            throw new RuntimeException('The given Google Application Credentials are invalid: ' . $e->getMessage());
+        } catch (DecodeException $e) {
+            throw new RuntimeException('The given Google Application Credentials are invalid: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
 
@@ -79,9 +85,9 @@ final class EnvironmentVariables implements Variables
      */
     private static function getenv(string $key): string
     {
-        $value = Env\get_var($key);
+        $value = get_var($key);
 
-        Psl\invariant($value !== null && $value !== '', Str\format('Could not find a value for environment variable `%s`', $key));
+        invariant($value !== null && $value !== '', format('Could not find a value for environment variable `%s`', $key));
 
         return $value;
     }

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Validation\Constraint;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\Validation\Constraint\AuthTimeValidAt;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
@@ -18,8 +21,8 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @covers \Beste\Firebase\JWT\Validation\Constraint\AuthTimeValidAt
  */
+#[CoversClass(AuthTimeValidAt::class)]
 final class AuthTimeValidAtTest extends TestCase
 {
     private FrozenClock $clock;
@@ -47,7 +50,7 @@ final class AuthTimeValidAtTest extends TestCase
         $this->expectException(ConstraintViolation::class);
         $this->expectExceptionMessageMatches('/should.+pass.+token/');
 
-        $this->constraint->assert($this->createMock(Token::class));
+        $this->constraint->assert($this->createStub(Token::class));
     }
 
     public function testItExpectsAnAuthTimeClaim(): void
@@ -110,7 +113,7 @@ final class AuthTimeValidAtTest extends TestCase
      */
     private function token(array $claims): UnencryptedToken
     {
-        $builder = new Builder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
+        $builder = Builder::new(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
 
         foreach ($claims as $name => $value) {
             $builder = $builder->withClaim($name, $value);

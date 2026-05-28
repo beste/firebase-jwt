@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Tests\Validation\Constraint;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Firebase\JWT\Tests\Support\InMemoryKeySet;
 use Beste\Firebase\JWT\Tests\TestCase;
 use Beste\Firebase\JWT\Validation\Constraint\SignedWithOneInKeySet;
@@ -16,21 +19,20 @@ use Lcobucci\JWT\Validation\ConstraintViolation;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 
 /**
- * @covers \Beste\Firebase\JWT\Validation\Constraint\SignedWithOneInKeySet
  * @internal
  */
+#[CoversClass(SignedWithOneInKeySet::class)]
 final class SignedWithOneInKeySetTest extends TestCase
 {
     private InMemory $privateKey;
     private SignedWithOneInKeySet $constraint;
-    private InMemory $publicKey;
 
     protected function setUp(): void
     {
         $this->privateKey = InMemory::file(__DIR__ . '/../../_fixtures/private.key');
-        $this->publicKey = InMemory::file(__DIR__ . '/../../_fixtures/public.key');
+        $publicKey = InMemory::file(__DIR__ . '/../../_fixtures/public.key');
 
-        $keySet = new InMemoryKeySet(['kid' => $this->publicKey]);
+        $keySet = new InMemoryKeySet(['kid' => $publicKey]);
         $this->constraint = new SignedWithOneInKeySet($keySet, new Sha256());
     }
 
@@ -47,7 +49,7 @@ final class SignedWithOneInKeySetTest extends TestCase
         $this->expectException(ConstraintViolation::class);
         $this->expectExceptionMessageMatches('/should pass/i');
 
-        $this->constraint->assert($this->createMock(Token::class));
+        $this->constraint->assert($this->createStub(Token::class));
     }
 
     public function testItExpectsAKnownKeyId(): void
@@ -96,7 +98,7 @@ final class SignedWithOneInKeySetTest extends TestCase
      */
     private function token(array $headers, array $claims = []): UnencryptedToken
     {
-        $builder = new Builder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
+        $builder = Builder::new(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates());
 
         foreach ($headers as $name => $value) {
             $builder = $builder->withHeader($name, $value);

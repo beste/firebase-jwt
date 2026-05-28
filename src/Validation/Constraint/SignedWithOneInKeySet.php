@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Validation\Constraint;
 
+use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Beste\Firebase\JWT\Signer\KeyNotFound;
 use Beste\Firebase\JWT\Signer\KeySet;
 use Lcobucci\JWT\Signer;
@@ -10,9 +13,9 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolation;
 
-final class SignedWithOneInKeySet implements Constraint
+final readonly class SignedWithOneInKeySet implements Constraint
 {
-    public function __construct(private readonly KeySet $keySet, private readonly Signer $signer) {}
+    public function __construct(private KeySet $keySet, private Signer $signer) {}
 
     public function assert(Token $token): void
     {
@@ -37,6 +40,6 @@ final class SignedWithOneInKeySet implements Constraint
         }
 
 
-        (new Constraint\SignedWith($this->signer, $key))->assert($token);
+        (new SignedWith($this->signer, $key))->assert($token);
     }
 }

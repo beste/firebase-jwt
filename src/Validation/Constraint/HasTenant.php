@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Beste\Firebase\JWT\Validation\Constraint;
 
 use Lcobucci\JWT\Token;
@@ -7,9 +9,9 @@ use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolation;
 
-final class HasTenant implements Constraint
+final readonly class HasTenant implements Constraint
 {
-    public function __construct(private readonly string $tenantId) {}
+    public function __construct(private string $tenantId) {}
 
     public function assert(Token $token): void
     {

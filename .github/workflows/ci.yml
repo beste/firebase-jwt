@@ -1,0 +1,278 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/ci.yml'
+      - '.roave-backward-compatibility-check.xml'
+      - 'src/**'
+      - 'tests/**'
+      - 'composer.json'
+      - '.phive/phars.xml'
+      - '.php-cs-fixer.dist.php'
+      - 'phpstan.neon.dist'
+      - 'phpunit.dist.xml'
+      - 'rector.dist.php'
+      - 'tools/**'
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/ci.yml'
+      - '.roave-backward-compatibility-check.xml'
+      - 'src/**'
+      - 'tests/**'
+      - 'composer.json'
+      - '.phive/phars.xml'
+      - '.php-cs-fixer.dist.php'
+      - 'phpstan.neon.dist'
+      - 'phpunit.dist.xml'
+      - 'rector.dist.php'
+      - 'tools/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-validation:
+    name: Dependency Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: none, bcmath, curl, dom, iconv, intl, json, mbstring, openssl, phar, tokenizer
+          coverage: none
+          tools: composer
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Ensure dependencies can be installed
+        run: composer install --no-interaction --no-progress --ansi --dry-run
+
+  static-analysis:
+    name: Static Analysis
+    needs: [dependency-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
+          coverage: none
+          tools: composer
+
+      - name: Install dependencies with Composer
+        run: composer update --no-interaction --no-progress --ansi
+
+      - name: Install PHPStan dependencies
+        run: composer --working-dir=tools/.phpstan install --no-interaction --no-progress --ansi
+
+      - name: Setup Problem Matchers
+        run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+
+      - name: Static Analysis
+        run: tools/phpstan --ansi analyse
+
+  unit-tests:
+    name: Unit Tests (PHP ${{ matrix.php }}, ${{ matrix.dependencies }})
+    needs: [dependency-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      PHP_INI_VALUES: memory_limit=-1, zend.assertions=1, error_reporting=-1, log_errors_max_len=0, display_errors=On
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      FIREBASE_TENANT_ID: ${{ secrets.FIREBASE_TENANT_ID }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.3", "8.4", "8.5"]
+        dependencies: ["lowest", "highest"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, openssl, phar, tokenizer, xml, xmlwriter, pcntl
+          ini-values: ${{ env.PHP_INI_VALUES }}
+          coverage: none
+          tools: composer
+
+      - name: Install dependencies with Composer
+        run: |
+          if [ "${{ matrix.dependencies }}" = "lowest" ]; then
+            composer update --prefer-lowest --prefer-stable --no-interaction --no-progress --ansi
+          else
+            composer update --no-interaction --no-progress --ansi
+          fi
+
+      - name: Setup Problem Matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Install tools
+        run: tools/phive --no-progress install --trust-gpg-keys E82B2FB314E9906E,4AA394086372C20A,C00543248C87FB13,033E5F8D801A2F8D
+
+      - name: Run PHPUnit
+        run: tools/phpunit --colors=always --testdox
+
+  dependency-audit:
+    name: Composer Audit
+    needs: [dependency-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          tools: composer
+          coverage: none
+
+      - name: Install dependencies with Composer
+        run: composer install --no-interaction --no-progress --ansi
+
+      - name: Run Composer Audit
+        run: composer audit --no-interaction --format=summary --abandoned=report --ansi
+
+  lint:
+    name: Lint (${{ matrix.name }})
+    needs: [dependency-validation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: rector
+            name: Rector
+            php: "8.3"
+            command: tools/rector --ansi --dry-run
+          - id: php-cs-fixer
+            name: PHP CS Fixer
+            php: "8.3"
+            command: tools/php-cs-fixer check --ansi --diff --verbose
+          - id: composer-normalize
+            name: Composer Normalize
+            php: "8.3"
+            command: tools/composer-normalize --ansi --dry-run
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
+          coverage: none
+          tools: composer
+
+      - name: Install dependencies with Composer
+        if: ${{ matrix.id == 'rector' }}
+        run: composer update --no-interaction --no-progress --ansi
+
+      - name: Install Rector dependencies
+        if: ${{ matrix.id == 'rector' }}
+        run: composer --working-dir=tools/.rector install --no-interaction --no-progress --ansi
+
+      - name: Install PHIVE tools
+        if: ${{ matrix.id != 'rector' }}
+        run: tools/phive --no-progress install --trust-gpg-keys E82B2FB314E9906E,4AA394086372C20A,C00543248C87FB13,033E5F8D801A2F8D
+
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
+
+  code-coverage:
+    name: Code Coverage
+    needs: [unit-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      PHP_INI_VALUES: memory_limit=-1, zend.assertions=1, error_reporting=-1, log_errors_max_len=0, display_errors=On
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      FIREBASE_TENANT_ID: ${{ secrets.FIREBASE_TENANT_ID }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, openssl, phar, tokenizer, xml, xmlwriter, pcntl
+          ini-values: ${{ env.PHP_INI_VALUES }}
+          coverage: xdebug
+          tools: composer
+
+      - name: Install dependencies with Composer
+        run: composer update --no-interaction --no-progress --ansi
+
+      - name: Install tools
+        run: tools/phive --no-progress install --trust-gpg-keys E82B2FB314E9906E,4AA394086372C20A,C00543248C87FB13,033E5F8D801A2F8D
+
+      - name: Collect code coverage with PHPUnit
+        run: tools/phpunit --log-junit build/test-results.xml --coverage-clover build/code-coverage.xml
+
+  bc-check:
+    name: Backward Compatibility Check
+    needs: [unit-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Check whether repository has tags
+        id: check-tags
+        shell: bash
+        run: |
+          if git tag --list | grep -q .; then
+            echo "has_tags=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_tags=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Roave BC Check
+        if: ${{ steps.check-tags.outputs.has_tags == 'true' }}
+        uses: docker://nyholm/roave-bc-check-ga
+
+      - name: Skip Roave BC Check (no tags found)
+        if: ${{ steps.check-tags.outputs.has_tags != 'true' }}
+        run: echo "Skipping BC check because no git tags were found."

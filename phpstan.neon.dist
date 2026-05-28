@@ -1,9 +1,18 @@
 parameters:
-	level: 9
+	level: max
+	bootstrapFiles:
+		- tools/.phpstan/vendor/autoload.php
 
 	paths:
 		- src/
 		- tests/
 
+	ignoreErrors:
+		-
+			# Needed since introducing phpstan/strict-rules, will revisit for next major release
+			message: '#Dynamic call to static method PHPUnit#'
+			identifier: staticMethod.dynamicCall
+			path: tests
+
 includes:
-	- vendor/phpstan/phpstan/conf/bleedingEdge.neon
+	- tools/.phpstan/vendor/phpstan/phpstan/conf/bleedingEdge.neon

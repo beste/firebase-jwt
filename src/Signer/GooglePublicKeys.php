@@ -34,6 +34,15 @@ final readonly class GooglePublicKeys implements KeySet
         private string $cacheKeyPrefix = 'bfj_',
     ) {}
 
+    public function addKey(string $id, Key $key): void
+    {
+        $cacheItem = $this->cache->getItem($this->cacheKeyPrefix . $id);
+        $cacheItem->set($key->contents());
+
+        if (!$this->cache->save($cacheItem)) {
+            throw KeySetError::withReason(format('The key `%s` could not be saved to the cache', $id));
+        }
+    }
 
     public function findKeyById(string $id): Key
     {

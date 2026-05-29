@@ -11,6 +11,13 @@ interface KeySet
     /**
      * @param non-empty-string $id
      *
+     * @throws KeySetError
+     */
+    public function addKey(string $id, Key $key): void;
+
+    /**
+     * @param non-empty-string $id
+     *
      * @throws KeyNotFound
      * @throws KeySetError
      */

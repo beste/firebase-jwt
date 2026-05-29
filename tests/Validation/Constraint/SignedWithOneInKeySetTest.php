@@ -32,7 +32,9 @@ final class SignedWithOneInKeySetTest extends TestCase
         $this->privateKey = InMemory::file(__DIR__ . '/../../_fixtures/private.key');
         $publicKey = InMemory::file(__DIR__ . '/../../_fixtures/public.key');
 
-        $keySet = new InMemoryKeySet(['kid' => $publicKey]);
+        $keySet = new InMemoryKeySet();
+        $keySet->addKey('kid', $publicKey);
+
         $this->constraint = new SignedWithOneInKeySet($keySet, new Sha256());
     }
 

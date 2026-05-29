@@ -53,6 +53,20 @@ final readonly class GooglePublicKeys implements KeySet
             return InMemory::plainText($value);
         }
 
+        $keys = $this->getKeys();
+
+        if (array_key_exists($id, $keys)) {
+            return $keys[$id];
+        }
+
+        throw KeyNotFound::unknownKeyID($id);
+    }
+
+    /**
+     * @return array<non-empty-string, Key>
+     */
+    private function getKeys(): array
+    {
         $response = $this->fetchKeys();
 
         try {
@@ -61,23 +75,25 @@ final readonly class GooglePublicKeys implements KeySet
             throw KeySetError::withReason(format('The response from `%s` could not be parsed: %s', $this->certUrl, $e->getMessage()));
         }
 
-        $key = null;
+        /** @var array<non-empty-string, Key> $keys */
+        $keys = [];
+        $expiresAfter = $this->getResponseExpiry($response);
 
-        foreach ($data as $keyId => $candidate) {
-            if ($keyId === $id) {
-                $key = InMemory::plainText($candidate);
-            }
+        foreach ($data as $keyId => $value) {
+            assert($keyId !== '');
+
+            $key = InMemory::plainText($value);
+
+            $this->addKey($keyId, $key);
+
+            $cacheItem = $this->cache->getItem($this->cacheKeyPrefix . $keyId);
+            $cacheItem->expiresAfter($expiresAfter);
+            $this->cache->save($cacheItem);
+
+            $keys[$keyId] = $key;
         }
 
-        $cacheItem->set($key?->contents());
-        $cacheItem->expiresAfter($this->getResponseExpiry($response));
-        $this->cache->save($cacheItem);
-
-        if ($key instanceof InMemory) {
-            return $key;
-        }
-
-        throw KeyNotFound::unknownKeyID($id);
+        return $keys;
     }
 
     private function getResponseExpiry(ResponseInterface $response): ?DateInterval

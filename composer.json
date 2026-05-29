@@ -11,23 +11,23 @@
     ],
     "require": {
         "php": "~8.3.0 || ~8.4.0 || ~8.5.0",
-        "beste/in-memory-cache": "^1.2",
-        "lcobucci/jwt": "^5.2",
-        "php-http/discovery": "^1.19.2",
+        "beste/in-memory-cache": "^1.5",
+        "lcobucci/jwt": "^5.6",
+        "php-http/discovery": "^1.20.0",
         "php-standard-library/php-standard-library": "^4.3.0 || ^5.5 || ^6.2.1",
         "psr/cache": "^2.0 || ^3.0",
         "psr/http-client": "^1.0.3",
         "psr/http-client-implementation": "^1.0",
-        "psr/http-factory": "^1.0.2",
+        "psr/http-factory": "^1.1.0",
         "psr/http-message": "^2.0"
     },
     "require-dev": {
         "beste/clock": "^3.0",
-        "google/auth": "^1.33",
-        "nyholm/psr7": "^1.8.1",
+        "google/auth": "^1.50.1",
+        "nyholm/psr7": "^1.8.2",
         "symfony/http-client": "^6.4.2 || ^7.0.2  || ^8.1.0",
         "symfony/var-dumper": "^6.4.2 || ^7.0.2 || ^8.1.0",
-        "vlucas/phpdotenv": "^5.6"
+        "vlucas/phpdotenv": "^5.6.3"
     },
     "suggest": {
         "psr/cache-implementation": "Allows caching of certificates fetched from Google to verify tokens",

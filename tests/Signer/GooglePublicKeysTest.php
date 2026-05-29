@@ -208,7 +208,7 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->assertTrue($this->cache->getItem('prefix_kid')->isHit()); // We don't test this, just assert the pre-condition is true
 
-        $this->clock->setTo($this->clock->now()->modify('+61 minutes'));
+        $this->clock->setTo($this->clock->now()->modify('+61 seconds'));
 
         self::assertFalse($this->cache->getItem('prefix_kid')->isHit());
     }

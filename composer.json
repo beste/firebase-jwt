@@ -14,7 +14,7 @@
         "beste/in-memory-cache": "^1.2",
         "lcobucci/jwt": "^5.2",
         "php-http/discovery": "^1.19.2",
-        "php-standard-library/php-standard-library": "^6.2",
+        "php-standard-library/php-standard-library": "^5.5 || ^6.2.1",
         "psr/cache": "^2.0 || ^3.0",
         "psr/http-client": "^1.0.3",
         "psr/http-client-implementation": "^1.0",

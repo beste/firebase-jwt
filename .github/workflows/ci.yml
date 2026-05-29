@@ -48,10 +48,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: "8.5"
           extensions: ${{ env.PHP_EXTENSIONS }}
@@ -65,7 +65,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer cache directory
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -86,10 +86,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: "8.5"
           extensions: ${{ env.PHP_EXTENSIONS }}
@@ -103,7 +103,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer cache directory
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -113,7 +113,7 @@ jobs:
         run: composer update --no-interaction --no-progress --ansi
 
       - name: Cache PHPStan dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: tools/.phpstan/vendor
           key: ${{ runner.os }}-phpstan-tools-${{ hashFiles('tools/.phpstan/composer.lock') }}
@@ -152,10 +152,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.PHP_EXTENSIONS }}
@@ -170,7 +170,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer cache directory
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -200,10 +200,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: "8.5"
           extensions: ${{ env.PHP_EXTENSIONS }}
@@ -217,7 +217,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer cache directory
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('composer.json', 'composer.lock') }}
@@ -256,10 +256,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.PHP_EXTENSIONS }}
@@ -275,7 +275,7 @@ jobs:
 
       - name: Cache Composer cache directory
         if: ${{ matrix.id == 'rector' }}
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -287,7 +287,7 @@ jobs:
 
       - name: Cache Rector dependencies
         if: ${{ matrix.id == 'rector' }}
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: tools/.rector/vendor
           key: ${{ runner.os }}-rector-tools-${{ hashFiles('tools/.rector/composer.lock') }}
@@ -313,10 +313,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@7c071dfe9dc99bdf297fa79cb49ea005b9fcadbc # v2
         with:
           php-version: "8.5"
           extensions: ${{ env.PHP_EXTENSIONS }}
@@ -331,7 +331,7 @@ jobs:
           echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer cache directory
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -340,7 +340,7 @@ jobs:
       - name: Install dependencies with Composer
         run: composer update --no-interaction --no-progress --ansi
       - name: Cache PHPUnit static analysis cache
-        uses: actions/cache@v5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: .phpunit.cache/code-coverage
           key: ${{ runner.os }}-phpunit-code-coverage-${{ github.ref }}-
@@ -380,7 +380,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
           fetch-tags: true
@@ -406,7 +406,7 @@ jobs:
 
       - name: Run Roave BC Check
         if: ${{ steps.check-tags.outputs.has_tags == 'true' }}
-        uses: docker://nyholm/roave-bc-check-ga
+        uses: docker://nyholm/roave-bc-check-ga@sha256:a9d3d932a4d3ba6a5a0563ef3788918a538198ee9c061a153f9b55caa8d3625f
 
       - name: Skip Roave BC Check (no tags found)
         if: ${{ steps.check-tags.outputs.has_tags != 'true' }}

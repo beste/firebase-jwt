@@ -104,7 +104,7 @@ final readonly class GooglePublicKeys implements KeySet
             capture_groups(['max_age']),
         );
 
-        return $match === null ? null : new DateInterval(format('PT%dM', $match['max_age']));
+        return $match === null ? null : new DateInterval(format('PT%dS', $match['max_age']));
     }
 
     private function fetchKeys(): ResponseInterface

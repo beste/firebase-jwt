@@ -23,6 +23,8 @@ use function Psl\Regex\capture_groups;
 
 final readonly class GooglePublicKeys implements KeySet
 {
+    private const string KEY_SET_FETCHED_CACHE_KEY = '__key_set_fetched';
+
     /**
      * @param non-empty-string $certUrl
      */
@@ -51,6 +53,10 @@ final readonly class GooglePublicKeys implements KeySet
 
         if ($cacheItem->isHit() && (is_string($value) && $value !== '')) {
             return InMemory::plainText($value);
+        }
+
+        if ($this->hasFreshKeySet()) {
+            throw KeyNotFound::unknownKeyID($id);
         }
 
         $keys = $this->getKeys();
@@ -93,7 +99,17 @@ final readonly class GooglePublicKeys implements KeySet
             $keys[$keyId] = $key;
         }
 
+        $cacheItem = $this->cache->getItem($this->cacheKeyPrefix . self::KEY_SET_FETCHED_CACHE_KEY);
+        $cacheItem->set(true);
+        $cacheItem->expiresAfter($expiresAfter);
+        $this->cache->save($cacheItem);
+
         return $keys;
+    }
+
+    private function hasFreshKeySet(): bool
+    {
+        return $this->cache->getItem($this->cacheKeyPrefix . self::KEY_SET_FETCHED_CACHE_KEY)->isHit();
     }
 
     private function getResponseExpiry(ResponseInterface $response): ?DateInterval

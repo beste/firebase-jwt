@@ -136,6 +136,58 @@ final class GooglePublicKeysTest extends TestCase
         $keySet->findKeyById('bar');
     }
 
+    public function testItDoesNotRefetchUnknownKeysWhileKeySetIsFresh(): void
+    {
+        $keySet = $this->keySetWithMockedClient();
+
+        $response = $this->responseFactory->createResponse(code: 200)
+            ->withBody($this->streamFactory->createStream(encode(['kid' => 'key'])))
+            ->withHeader('Cache-Control', 'max-age=60')
+        ;
+
+        $this->mockedClient
+            ->expects(self::once())
+            ->method('sendRequest')
+            ->withAnyParameters()
+            ->willReturn($response)
+        ;
+
+        try {
+            $keySet->findKeyById('unknown');
+        } catch (KeyNotFound) {
+        }
+
+        $this->expectException(KeyNotFound::class);
+        $keySet->findKeyById('unknown');
+    }
+
+    public function testItRefetchesUnknownKeysAfterKeySetExpires(): void
+    {
+        $keySet = $this->keySetWithMockedClient();
+
+        $response = $this->responseFactory->createResponse(code: 200)
+            ->withBody($this->streamFactory->createStream(encode(['kid' => 'key'])))
+            ->withHeader('Cache-Control', 'max-age=60')
+        ;
+
+        $this->mockedClient
+            ->expects(self::exactly(2))
+            ->method('sendRequest')
+            ->withAnyParameters()
+            ->willReturn($response)
+        ;
+
+        try {
+            $keySet->findKeyById('unknown');
+        } catch (KeyNotFound) {
+        }
+
+        $this->clock->setTo($this->clock->now()->modify('+61 seconds'));
+
+        $this->expectException(KeyNotFound::class);
+        $keySet->findKeyById('unknown');
+    }
+
     public function testItHandlesUnsuccessfulResponses(): void
     {
         $keySet = $this->keySetWithMockedClient();

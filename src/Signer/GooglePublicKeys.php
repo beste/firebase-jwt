@@ -23,7 +23,7 @@ use function Psl\Regex\capture_groups;
 
 final readonly class GooglePublicKeys implements KeySet
 {
-    private const string KEY_SET_FETCHED_CACHE_KEY = '__key_set_fetched';
+    private const string KEY_SET_FETCHED_CACHE_KEY = 'key_set_fetched';
 
     /**
      * @param non-empty-string $certUrl

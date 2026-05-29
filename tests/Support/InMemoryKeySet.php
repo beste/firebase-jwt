@@ -13,17 +13,18 @@ use Lcobucci\JWT\Signer\Key;
  */
 final class InMemoryKeySet implements KeySet
 {
-    private int $invocations = 0;
-
     /**
      * @param array<non-empty-string, Key> $keys
      */
     public function __construct(private array $keys = []) {}
 
+    public function addKey(string $id, Key $key): void
+    {
+        $this->keys[$id] = $key;
+    }
+
     public function findKeyById(string $id): Key
     {
-        ++$this->invocations;
-
         if (!array_key_exists($id, $this->keys)) {
             throw KeyNotFound::unknownKeyID($id);
         }

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Beste\Firebase\JWT\Tests\Signer;
 
+use Lcobucci\JWT\Signer\Key\InMemory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use Beste\Cache\InMemoryCache;
 use Beste\Clock\FrozenClock;
 use Beste\Firebase\JWT\Signer\GooglePublicKeys;
 use Beste\Firebase\JWT\Signer\KeyNotFound;
+use Beste\Firebase\JWT\Signer\KeySet;
 use Beste\Firebase\JWT\Signer\KeySetError;
 use Beste\Firebase\JWT\Tests\TestCase;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -152,6 +154,21 @@ final class GooglePublicKeysTest extends TestCase
         $keySet->findKeyById('foo');
     }
 
+    public function testItAddsAKeyToTheCache(): void
+    {
+        $keySet = $this->keySetWithMockedClient();
+        $key = InMemory::plainText('key');
+
+        $this->mockedClient
+            ->expects(self::never())
+            ->method('sendRequest')
+        ;
+
+        $keySet->addKey('kid', $key);
+
+        self::assertSame($key->contents(), $keySet->findKeyById('kid')->contents());
+    }
+
     public function testItReturnsACachedKey(): void
     {
         $keySet = $this->keySetWithMockedClient();
@@ -196,7 +213,7 @@ final class GooglePublicKeysTest extends TestCase
         self::assertFalse($this->cache->getItem('prefix_kid')->isHit());
     }
 
-    private function keySetWithMockedClient(string $cacheKeyPrefix = 'test'): GooglePublicKeys
+    private function keySetWithMockedClient(string $cacheKeyPrefix = 'test'): KeySet
     {
         return new GooglePublicKeys(
             certUrl: 'https://example.org',

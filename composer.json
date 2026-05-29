@@ -25,7 +25,7 @@
         "beste/clock": "^3.0",
         "google/auth": "^1.50.1",
         "nyholm/psr7": "^1.8.2",
-        "symfony/http-client": "^6.4.2 || ^7.0.2  || ^8.1.0",
+        "symfony/http-client": "^6.4.2 || ^7.0.2 || ^8.1.0",
         "symfony/var-dumper": "^6.4.2 || ^7.0.2 || ^8.1.0",
         "vlucas/phpdotenv": "^5.6.3"
     },

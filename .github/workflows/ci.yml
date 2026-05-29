@@ -51,7 +51,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
-          extensions: none, bcmath, curl, dom, iconv, intl, json, mbstring, openssl, phar, tokenizer
+          extensions: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
           coverage: none
           tools: composer
 
@@ -75,7 +75,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
-          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
+          extensions: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
           coverage: none
           tools: composer
 
@@ -116,7 +116,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, openssl, phar, tokenizer, xml, xmlwriter, pcntl
+          extensions: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
           ini-values: ${{ env.PHP_INI_VALUES }}
           coverage: none
           tools: composer
@@ -194,7 +194,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
+          extensions: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
           coverage: none
           tools: composer
 
@@ -232,7 +232,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.5"
-          extensions: none, ctype, curl, dom, iconv, json, libxml, mbstring, openssl, phar, tokenizer, xml, xmlwriter, pcntl
+          extensions: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, phar, tokenizer, xml, xmlwriter
           ini-values: ${{ env.PHP_INI_VALUES }}
           coverage: xdebug
           tools: composer

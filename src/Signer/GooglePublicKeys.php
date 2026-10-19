@@ -86,8 +86,6 @@ final readonly class GooglePublicKeys implements KeySet
         $expiresAfter = $this->getResponseExpiry($response);
 
         foreach ($data as $keyId => $value) {
-            assert($keyId !== '');
-
             $key = InMemory::plainText($value);
 
             $this->addKey($keyId, $key);

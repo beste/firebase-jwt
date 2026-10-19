@@ -7,7 +7,6 @@
         "phpstan/phpstan-phpunit": "^2.1.1",
         "phpstan/phpstan-strict-rules": "^2.1.0",
         "phpunit/phpunit": "^12.5.40",
-        "rector/type-perfect": "^2.2.0",
         "shipmonk/dead-code-detector": "^1.4.2",
         "tomasvotruba/type-coverage": "^2.5.1"
     },

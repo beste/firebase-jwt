@@ -34,7 +34,7 @@ permissions:
   contents: read
 
 env:
-  PHP_EXTENSIONS: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, openssl, phar, pcntl, tokenizer, xml, xmlwriter
+  PHP_EXTENSIONS: none, bcmath, ctype, curl, dom, iconv, intl, json, libxml, mbstring, openssl, phar, pcntl, posix, tokenizer, xml, xmlwriter
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

@@ -57,7 +57,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willThrowException(new $exception(__FUNCTION__))
         ;
 
@@ -75,7 +74,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willReturn($response)
         ;
 
@@ -93,7 +91,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willReturn($response)
         ;
 
@@ -112,7 +109,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willReturn($response)
         ;
 
@@ -128,7 +124,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willReturn($response)
         ;
 
@@ -198,7 +193,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willReturn($response)
         ;
 
@@ -252,7 +246,6 @@ final class GooglePublicKeysTest extends TestCase
 
         $this->mockedClient
             ->method('sendRequest')
-            ->withAnyParameters()
             ->willReturn($response)
         ;
 

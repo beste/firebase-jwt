@@ -15,7 +15,7 @@ use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
-use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
+use Lcobucci\JWT\Validation\Constraint\PermissiveValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Validator;
 use Psr\Clock\ClockInterface;
@@ -66,7 +66,7 @@ final class SecureSessionCookieVerifier implements SessionCookieVerifier
         assert($token instanceof UnencryptedToken);
 
         $constraints = [
-            new LooseValidAt($this->clock, $this->leeway),
+            new PermissiveValidAt($this->clock, $this->leeway),
             new IssuedBy(...["https://session.firebase.google.com/{$this->projectId}"]),
             new PermittedFor($this->projectId),
             new AuthTimeValidAt($this->clock, $this->leeway),

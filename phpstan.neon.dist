@@ -13,6 +13,12 @@ parameters:
 			message: '#Dynamic call to static method PHPUnit#'
 			identifier: staticMethod.dynamicCall
 			path: tests
+		-
+			# PermissiveValidAt requires lcobucci/jwt ^5.7 (PHP 8.4+); keep LooseValidAt while supporting PHP 8.3
+			message: '#deprecated class Lcobucci\\JWT\\Validation\\Constraint\\LooseValidAt#'
+			paths:
+				- src/Token/SecureIdTokenVerifier.php
+				- src/Token/SecureSessionCookieVerifier.php
 
 includes:
 	- tools/.phpstan/vendor/phpstan/phpstan/conf/bleedingEdge.neon
